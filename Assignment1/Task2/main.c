@@ -30,9 +30,7 @@
  * *END************************************************************************/
 
 #include "main.h"
-#include <tfs.h>
-#include <httpd.h>
-#include <httpd_types.h>
+#include <tfs.h>//task2
 
 
 #if defined(APPLICATION_HAS_SHELL) && (!SHELLCFG_USES_RTCS)
@@ -54,28 +52,80 @@ TASK_TEMPLATE_STRUCT MQX_template_list[] =
  * *
  * *END------------------------------------------------------------------*/
 HMI_CLIENT_STRUCT_PTR hmi_client;
+unsigned char http_refresh_text[] = "<Head><Title>Welcome to our board test page</Title></Head><Body bgcolor=""Red""><Centre>Some text floating in the centre.</Centre><br> <marquee behavior=""slide"" direction=""left"">No cool car</marquee></Body>";
+const TFS_DIR_ENTRY static_data[] = {	{"/index.html", 0, http_refresh_text, sizeof(http_refresh_text)}, {0,0,0,0}};
+char buffer[32];
+
 void Main_task(uint_32 initial_data)
 {
+	static HTTPD_ROOT_DIR_STRUCT http_root_dir[] = {{"","tfs:"},{0,0}};
+	HTTPD_STRUCT* http_server;
 	hmi_client = _bsp_btnled_init();
+	rtcs_init();
+	_rtc_init(RTC_INIT_FLAG_ENABLE);
+	_io_tfs_install("tfs:", static_data);
+	http_server = httpd_server_init_af(http_root_dir,"\\index.html",AF_INET);
+	httpd_server_run(http_server);
+	
+	
 	btnled_set_value(hmi_client, HMI_LED_1, HMI_VALUE_OFF);
 	btnled_set_value(hmi_client, HMI_LED_2, HMI_VALUE_OFF);
 	btnled_set_value(hmi_client, HMI_LED_3, HMI_VALUE_OFF);
 	btnled_set_value(hmi_client, HMI_LED_4, HMI_VALUE_OFF);
-	btnled_add_clb(hmi_client, HMI_BUTTON_1, HMI_VALUE_PUSH, button_push, NULL);
-	btnled_add_clb(hmi_client, HMI_BUTTON_1, HMI_VALUE_RELEASE, button_release, NULL);
-	while(1) btnled_poll (hmi_client);
-
+	btnled_add_clb(hmi_client, HMI_BUTTON_1, HMI_VALUE_PUSH, button_push_1, NULL);
+	btnled_add_clb(hmi_client, HMI_BUTTON_1, HMI_VALUE_RELEASE, button_release_1, NULL);
+	btnled_add_clb(hmi_client, HMI_BUTTON_2, HMI_VALUE_PUSH, button_push_2, NULL);
+	btnled_add_clb(hmi_client, HMI_BUTTON_2, HMI_VALUE_RELEASE, button_release_2, NULL);
+	btnled_add_clb(hmi_client, HMI_BUTTON_3, HMI_VALUE_PUSH, button_push_3, NULL);
+	btnled_add_clb(hmi_client, HMI_BUTTON_3, HMI_VALUE_RELEASE, button_release_3, NULL);
+	btnled_add_clb(hmi_client, HMI_BUTTON_4, HMI_VALUE_PUSH, button_push_4, NULL);
+	btnled_add_clb(hmi_client, HMI_BUTTON_4, HMI_VALUE_RELEASE, button_release_4, NULL);
+	while(1) 
+	{
+		btnled_poll (hmi_client);
+		ipcfg_task_poll();
+	}
 	//for(;;) {}
 
 }
-void button_push (void *ptr)
+
+void button_push_1 (void *ptr)
 {
 	btnled_set_value(hmi_client, HMI_LED_1, HMI_VALUE_ON);
 }
 
-void button_release (void *ptr)
+void button_release_1 (void *ptr)
 {
 	btnled_set_value(hmi_client, HMI_LED_1, HMI_VALUE_OFF);
+}
+
+void button_push_2 (void *ptr)
+{
+	btnled_set_value(hmi_client, HMI_LED_2, HMI_VALUE_ON);
+}
+
+void button_release_2 (void *ptr)
+{
+	btnled_set_value(hmi_client, HMI_LED_2, HMI_VALUE_OFF);
+}
+
+void button_push_3 (void *ptr)
+{
+	btnled_set_value(hmi_client, HMI_LED_3, HMI_VALUE_ON);
+}
+
+void button_release_3 (void *ptr)
+{
+	btnled_set_value(hmi_client, HMI_LED_3, HMI_VALUE_OFF);
+}
+void button_push_4 (void *ptr)
+{
+	btnled_set_value(hmi_client, HMI_LED_4, HMI_VALUE_ON);
+}
+
+void button_release_4 (void *ptr)
+{
+	btnled_set_value(hmi_client, HMI_LED_4, HMI_VALUE_OFF);
 }
 /* EOF */
 

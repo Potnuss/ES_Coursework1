@@ -4,7 +4,6 @@
 #include <bsp.h>
 
 
-
 #include <shell.h>
 #define APPLICATION_HAS_SHELL
 
@@ -13,6 +12,9 @@
 #include <sh_rtcs.h>
 #endif
 #include <ipcfg.h>
+#include <httpd.h>//task2
+#include <httpd_types.h>
+
 
 
 
@@ -33,8 +35,14 @@ extern void Main_task (uint_32);
 
 
 void rtcs_init(void);
-void button_push (void*);
-void button_release (void*);
+void button_push_1 (void*);
+void button_release_1 (void*);
+void button_push_2 (void*);
+void button_release_2 (void*);
+void button_push_3 (void*);
+void button_release_3 (void*);
+void button_push_4 (void*);
+void button_release_4 (void*);
 
 
 

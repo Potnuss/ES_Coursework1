@@ -53,18 +53,65 @@ TASK_TEMPLATE_STRUCT MQX_template_list[] =
  * *    This task initializes MFS and starts SHELL.
  * *
  * *END------------------------------------------------------------------*/
-
+HMI_CLIENT_STRUCT_PTR hmi_client;
 void Main_task(uint_32 initial_data)
 {
-	HMI_CLIENT_STRUCT_PTR hmi_client;
 	hmi_client = _bsp_btnled_init();
 	btnled_set_value(hmi_client, HMI_LED_1, HMI_VALUE_OFF);
-	btnled_set_value(hmi_client, HMI_LED_2, HMI_VALUE_ON);
-	btnled_set_value(hmi_client, HMI_LED_3, HMI_VALUE_ON);
-	btnled_set_value(hmi_client, HMI_LED_4, HMI_VALUE_ON);
+	btnled_set_value(hmi_client, HMI_LED_2, HMI_VALUE_OFF);
+	btnled_set_value(hmi_client, HMI_LED_3, HMI_VALUE_OFF);
+	btnled_set_value(hmi_client, HMI_LED_4, HMI_VALUE_OFF);
+	btnled_add_clb(hmi_client, HMI_BUTTON_1, HMI_VALUE_PUSH, button_push_1, NULL);
+	btnled_add_clb(hmi_client, HMI_BUTTON_1, HMI_VALUE_RELEASE, button_release_1, NULL);
+	btnled_add_clb(hmi_client, HMI_BUTTON_2, HMI_VALUE_PUSH, button_push_2, NULL);
+	btnled_add_clb(hmi_client, HMI_BUTTON_2, HMI_VALUE_RELEASE, button_release_2, NULL);
+	btnled_add_clb(hmi_client, HMI_BUTTON_3, HMI_VALUE_PUSH, button_push_3, NULL);
+	btnled_add_clb(hmi_client, HMI_BUTTON_3, HMI_VALUE_RELEASE, button_release_3, NULL);
+	btnled_add_clb(hmi_client, HMI_BUTTON_4, HMI_VALUE_PUSH, button_push_4, NULL);
+	btnled_add_clb(hmi_client, HMI_BUTTON_4, HMI_VALUE_RELEASE, button_release_4, NULL);
+	while(1) btnled_poll (hmi_client);
 
-	for(;;) {}
-	
+	//for(;;) {}
+
+}
+
+void button_push_1 (void *ptr)
+{
+	btnled_set_value(hmi_client, HMI_LED_1, HMI_VALUE_ON);
+}
+
+void button_release_1 (void *ptr)
+{
+	btnled_set_value(hmi_client, HMI_LED_1, HMI_VALUE_OFF);
+}
+
+void button_push_2 (void *ptr)
+{
+	btnled_set_value(hmi_client, HMI_LED_2, HMI_VALUE_ON);
+}
+
+void button_release_2 (void *ptr)
+{
+	btnled_set_value(hmi_client, HMI_LED_2, HMI_VALUE_OFF);
+}
+
+void button_push_3 (void *ptr)
+{
+	btnled_set_value(hmi_client, HMI_LED_3, HMI_VALUE_ON);
+}
+
+void button_release_3 (void *ptr)
+{
+	btnled_set_value(hmi_client, HMI_LED_3, HMI_VALUE_OFF);
+}
+void button_push_4 (void *ptr)
+{
+	btnled_set_value(hmi_client, HMI_LED_4, HMI_VALUE_ON);
+}
+
+void button_release_4 (void *ptr)
+{
+	btnled_set_value(hmi_client, HMI_LED_4, HMI_VALUE_OFF);
 }
 /* EOF */
 

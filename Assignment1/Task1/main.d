@@ -1,5 +1,5 @@
-rtcs_init.o: /afs/inf.ed.ac.uk/user/s10/s1025224/Documents/escourse/Template/rtcs_init.c \
-	/afs/inf.ed.ac.uk/user/s10/s1025224/Documents/escourse/Template/main.h \
+main.o: /afs/inf.ed.ac.uk/user/s10/s1025224/Documents/escourse/Assignment1/Task1/main.c \
+	/afs/inf.ed.ac.uk/user/s10/s1025224/Documents/escourse/Assignment1/Task1/main.h \
 	/group/teaching/espractical/Freescale/MQX/small_ram_config.h \
 	/group/teaching/espractical/Freescale/MQX/verif_enabled_config.h \
 	/group/teaching/espractical/Freescale/MQX/psp/psp_cpudef.h \
@@ -22,4 +22,9 @@ rtcs_init.o: /afs/inf.ed.ac.uk/user/s10/s1025224/Documents/escourse/Template/rtc
 	/group/teaching/espractical/Freescale/MQX/bsp/hmi_client.h \
 	/group/teaching/espractical/Freescale/MQX/bsp/hmi_provider.h \
 	/group/teaching/espractical/Freescale/MQX/bsp/sai_audio.h \
-	/group/teaching/espractical/Freescale/MQX/rtcs/rtcscfg.h 
+	/group/teaching/espractical/Freescale/MQX/rtcs/rtcscfg.h \
+	/group/teaching/espractical/Freescale/MQX/rtcs/httpd_types.h \
+	/group/teaching/espractical/Freescale/MQX/rtcs/httpd_cnfg.h \
+	/group/teaching/espractical/Freescale/MQX/rtcs/httpd_wrapper.h \
+	/group/teaching/espractical/Freescale/MQX/rtcs/httpd_mqx.h \
+	/group/teaching/espractical/Freescale/MQX/rtcs/httpd_supp.h 

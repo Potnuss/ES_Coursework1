@@ -1,4 +1,4 @@
-main.o: /afs/inf.ed.ac.uk/user/s10/s1025224/Documents/escourse/Template/main.c \
+rtcs_init.o: /afs/inf.ed.ac.uk/user/s10/s1025224/Documents/escourse/Template/rtcs_init.c \
 	/afs/inf.ed.ac.uk/user/s10/s1025224/Documents/escourse/Template/main.h \
 	/group/teaching/espractical/Freescale/MQX/small_ram_config.h \
 	/group/teaching/espractical/Freescale/MQX/verif_enabled_config.h \
