@@ -4,7 +4,6 @@
 #include <bsp.h>
 
 
-
 #include <shell.h>
 #define APPLICATION_HAS_SHELL
 
@@ -13,6 +12,9 @@
 #include <sh_rtcs.h>
 #endif
 #include <ipcfg.h>
+#include <httpd.h>//task2
+#include <httpd_types.h>
+
 
 
 
@@ -22,9 +24,9 @@
 #define ENET_DEVICE 0
 #define RTCS_DHCP 0
 
-#define ENET_IPADDR IPADDR(192,168,105,180)
+#define ENET_IPADDR IPADDR(192,168,105,192)
 #define ENET_IPMASK IPADDR(255,255,255,0)
-#define ENET_GATEWAY IPADDR(129,215,252,252)
+#define ENET_GATEWAY IPADDR(192,168,105,250)
 #define RTCS_PPP 0
 
     
@@ -33,7 +35,17 @@ extern void Main_task (uint_32);
 
 
 void rtcs_init(void);
-
+void button_push_1 (void*);
+void button_push_2 (void*);
+void button_push_3 (void*);
+void button_push_4 (void*);
+void hush_button_push (void*);
+void enable_button_push (void*);
+void manage_leds ();
+/*
+_mqx_int led_callback(HTTPD_SESSION_STRUCT*);
+_mqx_int time_callback(HTTPD_SESSION_STRUCT*);
+_mqx_int set_time_callback(HTTPD_SESSION_STRUCT*);*/
 
 
 
