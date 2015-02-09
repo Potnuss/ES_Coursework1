@@ -53,11 +53,17 @@ TASK_TEMPLATE_STRUCT MQX_template_list[] =
  * *
  * *END------------------------------------------------------------------*/
 HMI_CLIENT_STRUCT_PTR hmi_client;
-/*
-unsigned char http_refresh_text[] = "<Head><Title>Welcome to our board test page</Title></Head><Body bgcolor=""Red""><Centre>Some text floating in the centre.</Centre><br> <marquee behavior=""slide"" direction=""left"">No cool car</marquee></Body>";
+unsigned char http_refresh_text[] = "<Head><Title>Alarm Status</Title></Head><Body>Alarm 1 is  <a href=""new.cgi?1?"">toggle1</a> <FORM METHOD=""LINK"" ACTION=""http://192.168.105.192/new.cgi?1""><INPUT TYPE=""submit"" VALUE=""<% alarm_status_1 %>""></FORM><br>Alarm 2 is <FORM METHOD=""LINK"" ACTION=""http://192.168.105.192/new.cgi?2""><INPUT TYPE=""submit"" VALUE=""<% alarm_status_2 %>""></FORM></Body>";
+char page[] = "<!DOCTYPE HTML><html lang=""en-US""><head><meta charset=""UTF-8""><meta http-equiv=""refresh"" content=""1;url=index.html""><script type=""text/javascript"">window.location.href = ""index.html/""</script><title>Page Redirection</title></head><body>If you are not redirected automatically, follow the <a href='index.html'>link to example</a></body></html>";
 const TFS_DIR_ENTRY static_data[] = {	{"/index.html", 0, http_refresh_text, sizeof(http_refresh_text)}, {0,0,0,0}};
-static HTTPD_CGI_LINK_STRUCT http_cgi_params[] = {{"led", led_callback}, {"time", time_callback}, {"set_time", set_time_callback}, {0,0}};
-char buffer[32];*/
+static HTTPD_CGI_LINK_STRUCT http_cgi_params[] = {{"new", new_callback}, {0,0}};
+
+const HTTPD_FN_LINK_STRUCT fn_lnk_tbl[] = {
+	{"alarm_status_1", alarm_status_1},
+	{"alarm_status_2", alarm_status_2},
+	{0, 0}
+};
+
 short alarm1 = 0; //1 if the alarm has been triggered
 short alarm2 = 0;
 short alarm3 = 0;
@@ -71,19 +77,17 @@ int flash_counter = 0; //flash the leds when this reaches a threshold
 
 void Main_task(uint_32 initial_data)
 {
-	//static HTTPD_ROOT_DIR_STRUCT http_root_dir[] = {{"","tfs:"},{0,0}};
-	//HTTPD_STRUCT* http_server;
-
-
+	static HTTPD_ROOT_DIR_STRUCT http_root_dir[] = {{"","tfs:"},{0,0}};
+	HTTPD_STRUCT* http_server;
 
 	hmi_client = _bsp_btnled_init();
-	//rtcs_init();
-	//_rtc_init(RTC_INIT_FLAG_ENABLE);
-	//_io_tfs_install("tfs:", static_data);
-	//http_server = httpd_server_init_af(http_root_dir,"\\index.html",AF_INET);
-	//HTTPD_SET_PARAM_CGI_TBL(http_server, http_cgi_params);
-	//httpd_server_run(http_server);
-	
+	rtcs_init();
+	_rtc_init(RTC_INIT_FLAG_ENABLE);
+	_io_tfs_install("tfs:", static_data);
+	http_server = httpd_server_init_af(http_root_dir,"\\index.html",AF_INET);
+	HTTPD_SET_PARAM_CGI_TBL(http_server, http_cgi_params);
+	HTTPD_SET_PARAM_FN_TBL(http_server, (HTTPD_FN_LINK_STRUCT*) fn_lnk_tbl);
+	httpd_server_run(http_server);
 	
 	btnled_set_value(hmi_client, HMI_LED_1, HMI_VALUE_OFF);
 	btnled_set_value(hmi_client, HMI_LED_2, HMI_VALUE_OFF);
@@ -98,55 +102,45 @@ void Main_task(uint_32 initial_data)
 	while(1) 
 	{
 		btnled_poll (hmi_client);
-		//ipcfg_task_poll();
+		ipcfg_task_poll();
 		manage_leds ();
 	}
-	//for(;;) {}
-
 }
 
-/*
-_mqx_int led_callback(HTTPD_SESSION_STRUCT *session)
+_mqx_int new_callback(HTTPD_SESSION_STRUCT *session)
 {
-	int led = atoi(session->request.urldata);
-	httpd_sendstr(session->sock, "<html><body>LED toggled</body><html>");
-	btnled_toogle(hmi_client, HMI_GET_LED_ID(led));
-	return session->request.content_len;
-	
+	int option = atoi(session->request.urldata);
+	if (option == 6){
+		toggle_enable();
+	}
+	if (option == 5){
+		hush();
+	}
+	if ((option>=1) && (option<=4))
+	{
+		toggle_room_enabled(option);
+	}
+	httpd_sendstr(session->sock, page);
+	return session->request.content_len;	
 }
 
-_mqx_int time_callback(HTTPD_SESSION_STRUCT *session)
+void toggle_room_enabled(room)
 {
-        int hours, minutes, seconds;
-        RTC_TIME_STRUCT curr_time;
-	_rtc_get_time(&curr_time);
-	seconds = curr_time.seconds;
-	hours = seconds/3600;
-	minutes = (seconds%3600)/60;
-	seconds = seconds%60;
-	sprintf(buffer, "%u:%u:%u\n", hours, minutes, seconds);
-	httpd_sendstr(session->sock, buffer);
-	return session->request.content_len;
+if (room==1) {
+	if (room_enabled_1) {
+		room_enabled_1=0;
+		btnled_set_value(hmi_client, HMI_LED_1, HMI_VALUE_OFF);
+		alarm1=0;	
+	} else {
+		room_enabled_1=1;
+		if (global_enabled) {
+			btnled_set_value(hmi_client, HMI_LED_1, HMI_VALUE_ON);	
+		}
+		alarm1=0;
+	}
+}
 }
 
-_mqx_int set_time_callback(HTTPD_SESSION_STRUCT *session)
-{
-        int hours, minutes, seconds;
-	RTC_TIME_STRUCT the_new_time;
-	sscanf(session->request.urldata, "%u:%u:%u", &hours, &minutes, &seconds);
-	the_new_time.seconds=seconds+60*minutes+3600*hours;
-	_rtc_set_time(&the_new_time); //set the new time
-
-	_rtc_get_time(&the_new_time); //print the current time
-	seconds = the_new_time.seconds;
-	hours = seconds/3600;
-	minutes = (seconds%3600)/60;
-	seconds = seconds%60;
-	sprintf(buffer, "%u:%u:%u\n", hours, minutes, seconds);
-	httpd_sendstr(session->sock, buffer);
-	return session->request.content_len;
-}
-*/
 void button_push_1 (void *ptr)
 {
 	if (room_enabled_1 && global_enabled) {
@@ -181,36 +175,59 @@ void button_push_4 (void *ptr)
 
 void hush_button_push (void *ptr)
 {
+	hush();
+	
+}
+void hush (){
 	alarm1=0;
 	alarm2=0;
 	alarm3=0;
 	alarm4=0;
-	btnled_set_value(hmi_client, HMI_LED_1, HMI_VALUE_ON);
-	btnled_set_value(hmi_client, HMI_LED_2, HMI_VALUE_ON);
-	btnled_set_value(hmi_client, HMI_LED_3, HMI_VALUE_ON);
-	btnled_set_value(hmi_client, HMI_LED_4, HMI_VALUE_ON);
+	if(global_enabled){
+		check_individual_led_enables();
+	}
 }
+
 void enable_button_push (void *ptr)
 {
+	toggle_enable();
+}
+
+void check_individual_led_enables() //turns on each led if it is individually enabled, ignoring the global enable
+{
+		if (room_enabled_1) {
+			btnled_set_value(hmi_client, HMI_LED_1, HMI_VALUE_ON);
+		}
+		if (room_enabled_2) {
+			btnled_set_value(hmi_client, HMI_LED_2, HMI_VALUE_ON);
+		}
+		if (room_enabled_3) {
+			btnled_set_value(hmi_client, HMI_LED_3, HMI_VALUE_ON);
+		}
+		if (room_enabled_4) {
+			btnled_set_value(hmi_client, HMI_LED_4, HMI_VALUE_ON);
+		}
+}
+
+void toggle_enable()
+{
 	if(global_enabled == 1){
-	global_enabled = 0;
-	alarm1=0;
-	alarm2=0;
-	alarm3=0;
-	alarm4=0;
-	btnled_set_value(hmi_client, HMI_LED_1, HMI_VALUE_OFF);
-	btnled_set_value(hmi_client, HMI_LED_2, HMI_VALUE_OFF);
-	btnled_set_value(hmi_client, HMI_LED_3, HMI_VALUE_OFF);
-	btnled_set_value(hmi_client, HMI_LED_4, HMI_VALUE_OFF);
+		global_enabled = 0;
+		alarm1=0;
+		alarm2=0;
+		alarm3=0;
+		alarm4=0;
+		btnled_set_value(hmi_client, HMI_LED_1, HMI_VALUE_OFF);
+		btnled_set_value(hmi_client, HMI_LED_2, HMI_VALUE_OFF);
+		btnled_set_value(hmi_client, HMI_LED_3, HMI_VALUE_OFF);
+		btnled_set_value(hmi_client, HMI_LED_4, HMI_VALUE_OFF);
 	}
 	else{
-	global_enabled = 1;
-	btnled_set_value(hmi_client, HMI_LED_1, HMI_VALUE_ON);
-	btnled_set_value(hmi_client, HMI_LED_2, HMI_VALUE_ON);
-	btnled_set_value(hmi_client, HMI_LED_3, HMI_VALUE_ON);
-	btnled_set_value(hmi_client, HMI_LED_4, HMI_VALUE_ON);
+		global_enabled = 1;
+		check_individual_led_enables();
 	}
 }
+
 void manage_leds (){
 	if (flash_counter > 80) {
 		flash_counter = 0;
@@ -229,6 +246,22 @@ void manage_leds (){
 	}
 
 	flash_counter++;
+}
+
+static void alarm_status_1(HTTPD_SESSION_STRUCT *session)
+{
+	if (alarm1==1)
+		httpd_sendstr(session->sock, "on");
+	else
+		httpd_sendstr(session->sock, "off");
+}
+
+static void alarm_status_2(HTTPD_SESSION_STRUCT *session)
+{
+	if (alarm2==1)
+		httpd_sendstr(session->sock, "on");
+	else
+		httpd_sendstr(session->sock, "off");
 }
 /* EOF */
 

@@ -15,9 +15,6 @@
 #include <httpd.h>//task2
 #include <httpd_types.h>
 
-
-
-
 #define MAIN_TASK   1
 
 
@@ -29,27 +26,24 @@
 #define ENET_GATEWAY IPADDR(192,168,105,250)
 #define RTCS_PPP 0
 
-    
-
 extern void Main_task (uint_32);
 
 
 void rtcs_init(void);
+_mqx_int new_callback(HTTPD_SESSION_STRUCT*);
+void toggle_room_enabled(int);
 void button_push_1 (void*);
 void button_push_2 (void*);
 void button_push_3 (void*);
 void button_push_4 (void*);
 void hush_button_push (void*);
+void hush();
 void enable_button_push (void*);
+void check_individual_led_enables();
+void toggle_enable();
 void manage_leds ();
-/*
-_mqx_int led_callback(HTTPD_SESSION_STRUCT*);
-_mqx_int time_callback(HTTPD_SESSION_STRUCT*);
-_mqx_int set_time_callback(HTTPD_SESSION_STRUCT*);*/
-
-
-
-
+void alarm_status_1(HTTPD_SESSION_STRUCT*);
+void alarm_status_2(HTTPD_SESSION_STRUCT*);
 
 /* PPP device must be set manually and 
 ** must be different from the default IO channel (BSP_DEFAULT_IO_CHANNEL) 
