@@ -2,10 +2,12 @@ $ cat .gitignore
 
 # Can ignore specific files
 .DS_Store
-
+main
 # Use wildcards as well
 *~
 *.swp
+*.o
+*.d
 
 # Can also ignore all directories and files in a directory.
 tmp/**/* 
