@@ -60,11 +60,11 @@ unsigned char http_refresh_text[] =
 "</Head>"
 "<Body>"
 "<center>"
-"curent_time_status <%current_t_status%>"
-"enable_time_zone_1_status <%enable_t_zone_1%>"
-"disable_time_zone_1_status <%disable_t_zone_1%>"
-"to set time settime.cgi?seconds"
-"to set time setzone.cgi?seconds"
+"curent_time_status <%time%><br>"
+"enable_time_zone_1_status <%enable_t_zone_1%><br>"
+"disable_time_zone_1_status <%disable_t_zone_1%><br>"
+"to set time settime.cgi?seconds<br>"
+"to set time setzone.cgi?seconds<br>"
 "<table style='width:100%'>"
 "<tr> "
 "<td> </td> "
@@ -102,7 +102,7 @@ const HTTPD_FN_LINK_STRUCT fn_lnk_tbl[] = {
 	{"alarm_status_3", alarm_status_3},
 	{"alarm_status_4", alarm_status_4},
 	{"global_e_status", global_enabled_status},
-	{"current_t_status", current_time_status},
+	{"time", current_time_status},
 	{"enable_t_zone_1", enable_time_zone_1_status},
 	{"disable_t_zone_1", disable_time_zone_1_status},
 	{0, 0}
@@ -422,23 +422,23 @@ static void global_enabled_status(HTTPD_SESSION_STRUCT *session)
 
 static void current_time_status(HTTPD_SESSION_STRUCT *session)
 {
+   	//RTC_TIME_STRUCT curr_time;
+	//_rtc_get_time(&curr_time);
+	//seconds = curr_time.seconds;
 	char time_string[32];
-    int hours, minutes, seconds;
-    RTC_TIME_STRUCT curr_time;
-	_rtc_get_time(&curr_time);
-	seconds = curr_time.seconds;
+    	int hours, minutes, seconds;
+	seconds = enable_time_zone_1_seconds;
 	hours = seconds/3600;
 	minutes = (seconds%3600)/60;
 	seconds = seconds%60;
 	sprintf(time_string, "%u:%u:%u\n", hours, minutes, seconds);
-	time_string="big old test string lala lalala";
 	httpd_sendstr(session->sock, time_string);
 }
 
 static void enable_time_zone_1_status(HTTPD_SESSION_STRUCT *session)
 {
 	char time_string[32];
-    int hours, minutes, seconds;
+    	int hours, minutes, seconds;
 	seconds = enable_time_zone_1_seconds;
 	hours = seconds/3600;
 	minutes = (seconds%3600)/60;
