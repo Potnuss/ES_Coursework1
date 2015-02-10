@@ -60,7 +60,11 @@ unsigned char http_refresh_text[] =
 "</Head>"
 "<Body>"
 "<center>"
-
+"curent_time_status <%current_t_status%>"
+"enable_time_zone_1_status <%enable_t_zone_1%>"
+"disable_time_zone_1_status <%disable_t_zone_1%>"
+"to set time settime.cgi?seconds"
+"to set time setzone.cgi?seconds"
 "<table style='width:100%'>"
 "<tr> "
 "<td> </td> "
@@ -427,6 +431,7 @@ static void current_time_status(HTTPD_SESSION_STRUCT *session)
 	minutes = (seconds%3600)/60;
 	seconds = seconds%60;
 	sprintf(time_string, "%u:%u:%u\n", hours, minutes, seconds);
+	time_string="big old test string lala lalala";
 	httpd_sendstr(session->sock, time_string);
 }
 

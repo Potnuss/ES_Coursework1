@@ -5,45 +5,40 @@
 <Body>
 <center>
 
-<table border=1>
+<table>
 
 <tr>
-
 <td>
-<a href='new.cgi?1?'>Alarm 1 is <% alarm_status_1 %></a>
+<form action="">
+<input type="radio" name="enable" value="1">Enable<br>
+<input type="radio" name="enable" value="0">Disable
+</form>
 </td>
 
+<td> the alarm in </td>
+
 <td>
-<table style='width:100%'>
-<tr> 
-<td> </td> 
-<td>hh:mm:ss</td> 
-<td> </td> 
-</tr>
-  <tr>
-<form action='enable_time_zone_1.cgi'>
-    <td>Enable time </td>
-    <td>
-<input type='text' name='hh' pattern='[0-9]{2}' maxlength='2' style='width: 1.5em;' value='00'>
-<input type='text' name='mm' pattern='[0-9]{2}' maxlength='2' style='width: 1.5em;' value='00'>
-<input type='text' name='ss' pattern='[0-9]{2}' maxlength='2' style='width: 1.5em;' value='00'></td>		
-    <td>
-<input type='submit' value='Submit'></td>
-  </tr>
-</form> 
-  <tr>
-<form action='disable_time_zone_1.cgi'>
-    <td>Disable time</td>
-    <td>
-<input type='text' name='hh' pattern='[0-9]{2}' maxlength='2' style='width: 1.5em;' value='00'>
-<input type='text' name='mm' pattern='[0-9]{2}' maxlength='2' style='width: 1.5em;' value='00'>
-<input type='text' name='ss' pattern='[0-9]{2}' maxlength='2' style='width: 1.5em;' value='00'></td>		
-    <td>
-<input type='submit' value='Submit'></td>
-  </tr>
+<form action="">
+<input type="radio" name="zone" value="1">Zone 1<br>
+<input type="radio" name="zone" value="2">Zone 2<br>
+<input type="radio" name="zone" value="3">Zone 3<br>
+<input type="radio" name="zone" value="4">Zone 4
+</form>
+</td>
+
+<td> at time </td>
+
+<td>
+<table><tr><td>hh:mm:ss</td></tr>
+<tr><td>
+<input type="text" name="hh" pattern="[0-9]{2}" maxlength="2" style="width: 1.5em;" value="00">
+<input type="text" name="mm" pattern="[0-9]{2}" maxlength="2" style="width: 1.5em;" value="00">
+<input type="text" name="ss" pattern="[0-9]{2}" maxlength="2" style="width: 1.5em;" value="00">
+</td></tr>
 </table>
-
 </td>
+		
+<td><input type="submit" value="Submit"></td>
 </tr>
 
 </table>
