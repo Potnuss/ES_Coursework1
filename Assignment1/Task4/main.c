@@ -114,7 +114,7 @@ unsigned char http_refresh_text2[] =
 
 char page[] = "<!DOCTYPE HTML><html lang=""en-US""><head><meta charset=""UTF-8""><meta http-equiv=""refresh"" content=""1;url=index.html""><script type=""text/javascript"">window.location.href = ""index.html/""</script><title>Page Redirection</title></head><body>If you are not redirected automatically, follow the <a href='index.html'>link to example</a></body></html>"; //redirects you to index.html
 const TFS_DIR_ENTRY static_data[] = {	{"/index.html", 0, http_refresh_text, sizeof(http_refresh_text)}, {0,0,0,0}};
-static HTTPD_CGI_LINK_STRUCT http_cgi_params[] = {{"new", new_callback}, {0,0}};
+static HTTPD_CGI_LINK_STRUCT http_cgi_params[] = {{"new", new_callback},{"settime", settime_callback},{"setzone", setzone_callback},{0,0}};
 
 const HTTPD_FN_LINK_STRUCT fn_lnk_tbl[] = {
 	{"alarm_status_1", alarm_status_1},
@@ -122,6 +122,9 @@ const HTTPD_FN_LINK_STRUCT fn_lnk_tbl[] = {
 	{"alarm_status_3", alarm_status_3},
 	{"alarm_status_4", alarm_status_4},
 	{"global_e_status", global_enabled_status},
+	{"current_time_status", current_time_status},
+	{"enable_time_zone_1", enable_time_zone_1},
+	{"disable_time_zone_1", disable_time_zone_1},
 	{0, 0}
 };
 
@@ -135,7 +138,7 @@ short room_enabled_3 = 1;
 short room_enabled_4 = 1;
 short global_enabled = 0; //1 if the alarm system is enabled
 int flash_counter = 0; //flash the leds when this reaches a threshold
-
+int enable_time_zone_1_seconds = 1000;
 void Main_task(uint_32 initial_data)
 {
 	static HTTPD_ROOT_DIR_STRUCT http_root_dir[] = {{"","tfs:"},{0,0}};
@@ -181,6 +184,32 @@ _mqx_int new_callback(HTTPD_SESSION_STRUCT *session)
 	{
 		toggle_room_enabled(option);
 	}
+	httpd_sendstr(session->sock, page);
+	return session->request.content_len;	
+}
+_mqx_int settime_callback(HTTPD_SESSION_STRUCT *session)
+{
+	int hours, minutes, seconds;
+	RTC_TIME_STRUCT the_new_time;
+	//sscanf(session->request.urldata, "%u:%u:%u", &hours, &minutes, &seconds);//TODO
+	//the_new_time.seconds=seconds+60*minutes+3600*hours;
+	
+	seconds = atoi(session->request.urldata);//Just for test
+	the_new_time.seconds=seconds;//Just for test, only uses seconds right now
+	_rtc_set_time(&the_new_time); //set the new time
+
+	httpd_sendstr(session->sock, page);
+	return session->request.content_len;	
+}
+_mqx_int setzone_callback(HTTPD_SESSION_STRUCT *session)
+{
+	//int hours, minutes, seconds;
+	//sscanf(session->request.urldata, "%u:%u:%u", &hours, &minutes, &seconds);//TODO
+	//enable_time_zone_1_seconds=seconds+60*minutes+3600*hours;
+	//TODO if ZONE == 1 then...
+	//TODO if ZONE == 2 then...
+	enable_time_zone_1_seconds = atoi(session->request.urldata);//Just for test, only uses seconds right now
+	
 	httpd_sendstr(session->sock, page);
 	return session->request.content_len;	
 }
@@ -409,6 +438,36 @@ static void global_enabled_status(HTTPD_SESSION_STRUCT *session)
 		httpd_sendstr(session->sock, "enabled");
 	else
 		httpd_sendstr(session->sock, "disabled");
+}
+static void current_time_status(HTTPD_SESSION_STRUCT *session)
+{
+	char time_string[32];
+    int hours, minutes, seconds;
+    RTC_TIME_STRUCT curr_time;
+	_rtc_get_time(&curr_time);
+	seconds = curr_time.seconds;
+	hours = seconds/3600;
+	minutes = (seconds%3600)/60;
+	seconds = seconds%60;
+	sprintf(time_string, "%u:%u:%u\n", hours, minutes, seconds);
+	httpd_sendstr(session->sock, time_string);
+	return session->request.content_len;
+}
+static void enable_time_zone_1(HTTPD_SESSION_STRUCT *session)
+{
+	char time_string[32];
+    int hours, minutes, seconds;
+	seconds = enable_time_zone_1_seconds;
+	hours = seconds/3600;
+	minutes = (seconds%3600)/60;
+	seconds = seconds%60;
+	sprintf(time_string, "%u:%u:%u\n", hours, minutes, seconds);
+	httpd_sendstr(session->sock, time_string);
+	return session->request.content_len;
+}
+static void disable_time_zone_1(HTTPD_SESSION_STRUCT *session)
+{
+	//todo copy from above enable_time_zone_1
 }
 /* EOF */
 
