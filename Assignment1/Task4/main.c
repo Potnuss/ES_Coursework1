@@ -60,30 +60,88 @@ unsigned char http_refresh_text[] =
 "</Head>"
 "<Body>"
 "<center>"
-"curent_time_status <%time%><br>"
-"enable_time_zone_1_status <%enable_t_zone_1%><br>"
-"disable_time_zone_1_status <%disable_t_zone_1%><br>"
-"to set time settime.cgi?seconds<br>"
-"to set time setzone.cgi?seconds<br>"
-"<table style='width:100%'>"
-"<tr> "
-"<td> </td> "
-"<td>hh:mm:ss</td> "
-"<td> </td> "
-"</tr>"
-"  <tr>"
-"<form action='setzone.cgi'>"
-"    <td>Enable time </td>"
-"    <td>"
-"<input type='text' name='hh' pattern='[0-9]{2}' maxlength='2' style='width: 1.5em;' value='00'>"
-"<input type='text' name='mm' pattern='[0-9]{2}' maxlength='2' style='width: 1.5em;' value='00'>"
-"<input type='text' name='ss' pattern='[0-9]{2}' maxlength='2' style='width: 1.5em;' value='00'></td>	"	
-"    <td>"
-"<input type='submit' value='Submit'></td>"
-"  </tr>"
-"</form> "
+
+"<table border=1>"
+"<tr><td>"
+"<a href='new.cgi?1?'>Alarm 1 is <% alarm_status_1 %></a>"
+"</td></tr><tr><td>"
+"<a href='new.cgi?2?'>Alarm 2 is <% alarm_status_2 %></a>"
+"</td></tr><tr><td>"
+"<a href='new.cgi?3?'>Alarm 3 is <% alarm_status_3 %></a>"
+"</td></tr><tr><td>"
+"<a href='new.cgi?4?'>Alarm 4 is <% alarm_status_4 %></a>"
+"</td></tr>"
 "</table>"
-"</body>"
+
+"<br><br>"
+"<a href='new.cgi?5?'>The system is <% global_e_status %></a><br>"
+"<a href='new.cgi?6?'>Hush all alarms</a>"
+
+
+"<br><br>"
+
+"Schedule<br>"
+"<table border=1>"
+"<tr><td>zone</td><td>time</td><td>action</td></tr>"
+"<tr><td>1</td><td><% enable_time_zone_1 %></td><td>enable</td></tr>"
+"<tr><td>2</td><td><% enable_time_zone_2 %></td><td>enable</td></tr>"
+"<tr><td>3</td><td><% enable_time_zone_3 %></td><td>enable</td></tr>"
+"<tr><td>4</td><td><% enable_time_zone_4 %></td><td>enable</td></tr>"
+"<tr><td>1</td><td><% disable_time_zone_1 %></td><td>disable</td></tr>"
+"<tr><td>2</td><td><% disable_time_zone_2 %></td><td>disable</td></tr>"
+"<tr><td>3</td><td><% disable_time_zone_3 %></td><td>disable</td></tr>"
+"<tr><td>4</td><td><% disable_time_zone_4 %></td><td>disable</td></tr>"
+"</table>"
+
+"<br><br><br>"
+"<table>"
+"<tr>"
+"<td>"
+"<form action=''>"
+"<input type='radio' name='enable' value='1'>Enable<br>"
+"<input type='radio' name='enable' value='0'>Disable"
+"</form>"
+"</td>"
+
+"<td> the alarm in </td>"
+
+"<td>"
+"<form action=''>"
+"<input type='radio' name='zone' value='1'>Zone 1<br>"
+"<input type='radio' name='zone' value='2'>Zone 2<br>"
+"<input type='radio' name='zone' value='3'>Zone 3<br>"
+"<input type='radio' name='zone' value='4'>Zone 4"
+"</form>"
+"</td>"
+
+"<td> at time </td>"
+
+"<td>"
+"<table><tr><td><center>hh:mm:ss</center></td></tr>"
+"<tr><td>"
+"<input type='text' name='hh' pattern='[0-9]{2}' maxlength='2' style='width: 2em;' value='00'>"
+"<input type='text' name='mm' pattern='[0-9]{2}' maxlength='2' style='width: 2em;' value='00'>"
+"<input type='text' name='ss' pattern='[0-9]{2}' maxlength='2' style='width: 2em;' value='00'>"
+"</td></tr>"
+"</table>"
+"</td>"
+		
+"<td><input type='submit' value='Submit'></td>"
+"</tr>"
+
+"</table>"
+"<br>"
+"Set the system time will return the url 'settime.cgi?hh=00&mm=00&ss=00?'.<br>"
+"Setting the enable/disable time for 'setzone.cgi?enable==0&zone==1&hh=00&mm=00&ss=00'.<br>"
+"<br>"
+"The alarm system clock is currently set to <% current_time_status %> <br>"
+"<br>"
+"<br>"
+"<form action='new.cgi?1?' method='post'><INPUT TYPE='submit' VALUE='Alarm 1 is <% alarm_status_1 %>'></FORM>"
+
+
+"</center>"
+"</Body>"
 "</html>";
 
 unsigned char http_refresh_text2[] = 
@@ -109,10 +167,7 @@ const HTTPD_FN_LINK_STRUCT fn_lnk_tbl[] = {
 };
 
 short alarm[] = {0,0,0,0};//1 if the alarm has been triggered
-short room_enabled_1 = 1; //1 if an individual room's alarm is enabled
-short room_enabled_2 = 1;
-short room_enabled_3 = 1;
-short room_enabled_4 = 1;
+short room_enabled[] = {1,1,1,1};//1 if an individual room's alarm is enabled
 short global_enabled = 0; //1 if the alarm system is enabled
 int flash_counter = 0; //flash the leds when this reaches a threshold
 int enable_time_zone_seconds[4] = {0,0,0,0};
@@ -196,13 +251,13 @@ void toggle_room_enabled(room)
 {
 	switch ( room ) {
 		case 1:
-			  if (room_enabled_1) { //If room is enabled then disable it and turn the corresponding led off and turn of the alarm.
-					room_enabled_1=0;
+			  if (room_enabled[0]) { //If room is enabled then disable it and turn the corresponding led off and turn of the alarm.
+					room_enabled[0]=0;
 					btnled_set_value(hmi_client, HMI_LED_1, HMI_VALUE_OFF);
 					alarm[0]=0;	
 				} 
 				else {
-					room_enabled_1=1; //If room is disabled then enable it and if the the alarmsystem is enabled turn the corresponding led on and turn of the alarm.
+					room_enabled[0]=1; //If room is disabled then enable it and if the the alarmsystem is enabled turn the corresponding led on and turn of the alarm.
 					if (global_enabled) {
 						btnled_set_value(hmi_client, HMI_LED_1, HMI_VALUE_ON);	
 					}
@@ -210,13 +265,13 @@ void toggle_room_enabled(room)
 				}
 			  break;
 		case 2:
-			  if (room_enabled_2) { //If room is enabled then disable it and turn the corresponding led off and turn of the alarm.
-					room_enabled_2=0;
+			  if (room_enabled[1]) { //If room is enabled then disable it and turn the corresponding led off and turn of the alarm.
+					room_enabled[1]=0;
 					btnled_set_value(hmi_client, HMI_LED_2, HMI_VALUE_OFF);
 					alarm[1]=0;	
 				} 
 				else {
-					room_enabled_1=1; //If room is disabled then enable it and if the the alarmsystem is enabled turn the corresponding led on and turn of the alarm.
+					room_enabled[0]=1; //If room is disabled then enable it and if the the alarmsystem is enabled turn the corresponding led on and turn of the alarm.
 					if (global_enabled) {
 						btnled_set_value(hmi_client, HMI_LED_2, HMI_VALUE_ON);	
 					}
@@ -224,13 +279,13 @@ void toggle_room_enabled(room)
 				}
 			  break;
 		case 3:
-			  if (room_enabled_3) { //If room is enabled then disable it and turn the corresponding led off and turn of the alarm.
-					room_enabled_3=0;
+			  if (room_enabled[2]) { //If room is enabled then disable it and turn the corresponding led off and turn of the alarm.
+					room_enabled[2]=0;
 					btnled_set_value(hmi_client, HMI_LED_3, HMI_VALUE_OFF);
 					alarm[2]=0;	
 				} 
 				else {
-					room_enabled_3=1; //If room is disabled then enable it and if the the alarmsystem is enabled turn the corresponding led on and turn of the alarm.
+					room_enabled[2]=1; //If room is disabled then enable it and if the the alarmsystem is enabled turn the corresponding led on and turn of the alarm.
 					if (global_enabled) {
 						btnled_set_value(hmi_client, HMI_LED_3, HMI_VALUE_ON);	
 					}
@@ -238,13 +293,13 @@ void toggle_room_enabled(room)
 				}
 			  break;
 		case 4:
-			  if (room_enabled_4) { //If room is enabled then disable it and turn the corresponding led off and turn of the alarm.
-					room_enabled_4=0;
+			  if (room_enabled[3]) { //If room is enabled then disable it and turn the corresponding led off and turn of the alarm.
+					room_enabled[3]=0;
 					btnled_set_value(hmi_client, HMI_LED_4, HMI_VALUE_OFF);
 					alarm[3]=0;	
 				} 
 				else {
-					room_enabled_4=1; //If room is disabled then enable it and if the the alarmsystem is enabled turn the corresponding led on and turn of the alarm.
+					room_enabled[3]=1; //If room is disabled then enable it and if the the alarmsystem is enabled turn the corresponding led on and turn of the alarm.
 					if (global_enabled) {
 						btnled_set_value(hmi_client, HMI_LED_4, HMI_VALUE_ON);	
 					}
@@ -260,14 +315,14 @@ void toggle_room_enabled(room)
 
 void button_push_1 (void *ptr)
 {
-	if (room_enabled_1 && global_enabled) {
+	if (room_enabled[0] && global_enabled) {
 		alarm[0]=1;
 		btnled_toogle(hmi_client, HMI_GET_LED_ID(1));
 	}
 }
 void button_push_2 (void *ptr)
 {
-	if (room_enabled_2 && global_enabled) {
+	if (room_enabled[1] && global_enabled) {
 		alarm[1]=1;
 		btnled_toogle(hmi_client, HMI_GET_LED_ID(2));
 	}
@@ -276,7 +331,7 @@ void button_push_2 (void *ptr)
 
 void button_push_3 (void *ptr)
 {
-	if (room_enabled_3 && global_enabled) {
+	if (room_enabled[2] && global_enabled) {
 		alarm[2]=1;
 		btnled_toogle(hmi_client, HMI_GET_LED_ID(3));
 	}
@@ -284,7 +339,7 @@ void button_push_3 (void *ptr)
 
 void button_push_4 (void *ptr)
 {
-	if (room_enabled_4 && global_enabled) {
+	if (room_enabled[3] && global_enabled) {
 		alarm[3]=1;
 		btnled_toogle(hmi_client, HMI_GET_LED_ID(4));
 	}
@@ -310,16 +365,16 @@ void enable_button_push (void *ptr)
 
 void check_individual_led_enables() //turns on each led if it is individually enabled, ignoring the global enable
 {
-		if (room_enabled_1) {
+		if (room_enabled[0]) {
 			btnled_set_value(hmi_client, HMI_LED_1, HMI_VALUE_ON);
 		}
-		if (room_enabled_2) {
+		if (room_enabled[1]) {
 			btnled_set_value(hmi_client, HMI_LED_2, HMI_VALUE_ON);
 		}
-		if (room_enabled_3) {
+		if (room_enabled[2]) {
 			btnled_set_value(hmi_client, HMI_LED_3, HMI_VALUE_ON);
 		}
-		if (room_enabled_4) {
+		if (room_enabled[3]) {
 			btnled_set_value(hmi_client, HMI_LED_4, HMI_VALUE_ON);
 		}
 }
@@ -363,7 +418,7 @@ void manage_leds (){
 
 static void alarm_status_1(HTTPD_SESSION_STRUCT *session)
 {
-	if (room_enabled_1==1){
+	if (room_enabled[0]==1){
 		if (alarm[0] == 1)
 			httpd_sendstr(session->sock, "triggered");
 		else
@@ -375,7 +430,7 @@ static void alarm_status_1(HTTPD_SESSION_STRUCT *session)
 
 static void alarm_status_2(HTTPD_SESSION_STRUCT *session)
 {
-	if (room_enabled_2==1){
+	if (room_enabled[1]==1){
 		if (alarm[1] == 1)
 			httpd_sendstr(session->sock, "triggered");
 		else
@@ -386,7 +441,7 @@ static void alarm_status_2(HTTPD_SESSION_STRUCT *session)
 }
 static void alarm_status_3(HTTPD_SESSION_STRUCT *session)
 {
-	if (room_enabled_3==1){
+	if (room_enabled[2]==1){
 		if (alarm[2] == 1)
 			httpd_sendstr(session->sock, "triggered");
 		else
@@ -397,7 +452,7 @@ static void alarm_status_3(HTTPD_SESSION_STRUCT *session)
 }
 static void alarm_status_4(HTTPD_SESSION_STRUCT *session)
 {
-	if (room_enabled_4==1){
+	if (room_enabled[3]==1){
 		if (alarm[3] == 1)
 			httpd_sendstr(session->sock, "triggered");
 		else
