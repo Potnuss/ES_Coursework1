@@ -68,9 +68,9 @@ unsigned char http_refresh_text[] =
 "<br>"
 "<a href=""new.cgi?4?"">Alarm 4 is <% alarm_status_4 %></a>"
 "<br>"
-"The system is <a href=""new.cgi?4?""><% global_enabled_status %></a>"
+"The system is <a href=""new.cgi?5?""><% global_e_status %></a>"
 "<br>"
-"<a href=""new.cgi?4?"">Hush all alarms</a>"
+"<a href=""new.cgi?6?"">Hush all alarms</a>"
 "<br>"
 "<br>"
 "The alarm system clock is currently set to <% current_time_status %>"
@@ -94,8 +94,7 @@ const HTTPD_FN_LINK_STRUCT fn_lnk_tbl[] = {
 	{"alarm_status_2", alarm_status_2},
 	{"alarm_status_3", alarm_status_3},
 	{"alarm_status_4", alarm_status_4},
-	{"global_enabled_status", global_enabled_status},
-
+	{"global_e_status", global_enabled_status},
 	{0, 0}
 };
 
@@ -145,10 +144,10 @@ void Main_task(uint_32 initial_data)
 _mqx_int new_callback(HTTPD_SESSION_STRUCT *session)
 {
 	int option = atoi(session->request.urldata);
-	if (option == 6){
+	if (option == 5){
 		toggle_enable();
 	}
-	if (option == 5){
+	if (option == 6){
 		hush();
 	}
 	if ((option>=1) && (option<=4))
@@ -334,38 +333,46 @@ void manage_leds (){
 
 static void alarm_status_1(HTTPD_SESSION_STRUCT *session)
 {
-	if ((room_enabled_1==1) && (alarm1 == 0)
-		httpd_sendstr(session->sock, "enabled");
-	if ((room_enabled_1==1) && (alarm1 == 1)
-		httpd_sendstr(session->sock, "triggered");
+	if (room_enabled_1==1){
+		if (alarm1 == 1)
+			httpd_sendstr(session->sock, "triggered");
+		else
+			httpd_sendstr(session->sock, "enabled");
+	}
 	else
 		httpd_sendstr(session->sock, "disabled");
 }
 
 static void alarm_status_2(HTTPD_SESSION_STRUCT *session)
 {
-	if ((room_enabled_1==1) && (alarm1 == 0)
-		httpd_sendstr(session->sock, "enabled");
-	if ((room_enabled_1==1) && (alarm1 == 1)
-		httpd_sendstr(session->sock, "triggered");
+	if (room_enabled_2==1){
+		if (alarm2 == 1)
+			httpd_sendstr(session->sock, "triggered");
+		else
+			httpd_sendstr(session->sock, "enabled");
+	}
 	else
 		httpd_sendstr(session->sock, "disabled");
 }
 static void alarm_status_3(HTTPD_SESSION_STRUCT *session)
 {
-	if ((room_enabled_1==1) && (alarm1 == 0)
-		httpd_sendstr(session->sock, "enabled");
-	if ((room_enabled_1==1) && (alarm1 == 1)
-		httpd_sendstr(session->sock, "triggered");
+	if (room_enabled_3==1){
+		if (alarm3 == 1)
+			httpd_sendstr(session->sock, "triggered");
+		else
+			httpd_sendstr(session->sock, "enabled");
+	}
 	else
 		httpd_sendstr(session->sock, "disabled");
 }
 static void alarm_status_4(HTTPD_SESSION_STRUCT *session)
 {
-	if ((room_enabled_1==1) && (alarm1 == 0)
-		httpd_sendstr(session->sock, "enabled");
-	if ((room_enabled_1==1) && (alarm1 == 1)
-		httpd_sendstr(session->sock, "triggered");
+	if (room_enabled_4==1){
+		if (alarm4 == 1)
+			httpd_sendstr(session->sock, "triggered");
+		else
+			httpd_sendstr(session->sock, "enabled");
+	}
 	else
 		httpd_sendstr(session->sock, "disabled");
 }
