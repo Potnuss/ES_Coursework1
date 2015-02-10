@@ -12,8 +12,13 @@
 <br>
 <a href="new.cgi?4?">Alarm 4 is <% alarm_status_4 %></a>
 <br>
-The system is <a href="new.cgi?4?"><% global_enable_status %></a>
+The system is <a href="new.cgi?5?"><% global_enabled_status %></a>
 <br>
-<a href="new.cgi?4?">Hush all alarms</a>
+<a href="new.cgi?6?">Hush all alarms</a>
+<br>
+<br>
+The alarm system clock is currently set to <% current_time_status %>
+<br>
+<form action="new.cgi?1?" method="post"><INPUT TYPE="submit" VALUE="Alarm 1 is <% alarm_status_1 %>"></FORM>
 </center>
 </Body>

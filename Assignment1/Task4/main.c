@@ -53,13 +53,30 @@ TASK_TEMPLATE_STRUCT MQX_template_list[] =
  * *
  * *END------------------------------------------------------------------*/
 HMI_CLIENT_STRUCT_PTR hmi_client;
-unsigned char http_refresh_text[] = "<Head>"
+unsigned char http_refresh_text[] = 
+"<Head>"
 "<Title>Alarm Status</Title>"
 "</Head>"
 "<Body>"
-"Alarm 1 is  <a href=""new.cgi?1?""><% alarm_status_1 %></a>"
+"<center>"
+"<font size=20>"
+"<a href=""new.cgi?1?"">Alarm 1 is <% alarm_status_1 %></a>"
 "<br>"
-"Alarm 2 is  <a href=""new.cgi?2?""><% alarm_status_2 %></a>"
+"<a href=""new.cgi?2?"">Alarm 2 is <% alarm_status_2 %></a>"
+"<br>"
+"<a href=""new.cgi?3?"">Alarm 3 is <% alarm_status_3 %></a>"
+"<br>"
+"<a href=""new.cgi?4?"">Alarm 4 is <% alarm_status_4 %></a>"
+"<br>"
+"The system is <a href=""new.cgi?4?""><% global_enabled_status %></a>"
+"<br>"
+"<a href=""new.cgi?4?"">Hush all alarms</a>"
+"<br>"
+"<br>"
+"The alarm system clock is currently set to <% current_time_status %>"
+"<br>"
+"<form action=""new.cgi?1?"" method=""post""><INPUT TYPE=""submit"" VALUE=""Alarm 1 is <% alarm_status_1 %>""></FORM>"
+"</center>"
 "</Body>";
 
 unsigned char http_refresh_text2[] = 
