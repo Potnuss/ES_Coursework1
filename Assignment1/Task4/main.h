@@ -49,9 +49,10 @@ void alarm_status_2(HTTPD_SESSION_STRUCT*);
 void alarm_status_3(HTTPD_SESSION_STRUCT*);
 void alarm_status_4(HTTPD_SESSION_STRUCT*);
 void global_enabled_status(HTTPD_SESSION_STRUCT*);
-static void current_time_status(HTTPD_SESSION_STRUCT*);
-static void enable_time_zone_1(HTTPD_SESSION_STRUCT*);
-static void disable_time_zone_2(HTTPD_SESSION_STRUCT*);
+void current_time_status(HTTPD_SESSION_STRUCT*);
+void enable_time_zone_1_status(HTTPD_SESSION_STRUCT*);
+void disable_time_zone_1_status(HTTPD_SESSION_STRUCT*);
+
 /* PPP device must be set manually and 
 ** must be different from the default IO channel (BSP_DEFAULT_IO_CHANNEL) 
 */

@@ -61,15 +61,6 @@ unsigned char http_refresh_text[] =
 "<Body>"
 "<center>"
 
-"<table border=1>"
-
-"<tr>"
-
-"<td>"
-"<a href='new.cgi?1?'>Alarm 1 is <% alarm_status_1 %></a>"
-"</td>"
-
-"<td>"
 "<table style='width:100%'>"
 "<tr> "
 "<td> </td> "
@@ -77,7 +68,7 @@ unsigned char http_refresh_text[] =
 "<td> </td> "
 "</tr>"
 "  <tr>"
-"<form action='enable_time_zone_1.cgi'>"
+"<form action='setzone.cgi'>"
 "    <td>Enable time </td>"
 "    <td>"
 "<input type='text' name='hh' pattern='[0-9]{2}' maxlength='2' style='width: 1.5em;' value='00'>"
@@ -87,21 +78,6 @@ unsigned char http_refresh_text[] =
 "<input type='submit' value='Submit'></td>"
 "  </tr>"
 "</form> "
-"  <tr>"
-"<form action='disable_time_zone_1.cgi'>"
-"    <td>Disable time</td>"
-"    <td>"
-"<input type='text' name='hh' pattern='[0-9]{2}' maxlength='2' style='width: 1.5em;' value='00'>"
-"<input type='text' name='mm' pattern='[0-9]{2}' maxlength='2' style='width: 1.5em;' value='00'>"
-"<input type='text' name='ss' pattern='[0-9]{2}' maxlength='2' style='width: 1.5em;' value='00'></td>	"	
-"    <td>"
-"<input type='submit' value='Submit'></td>"
-"  </tr>"
-"</table>"
-
-"</td>"
-"</tr>"
-
 "</table>"
 "</body>"
 "</html>";
@@ -122,9 +98,9 @@ const HTTPD_FN_LINK_STRUCT fn_lnk_tbl[] = {
 	{"alarm_status_3", alarm_status_3},
 	{"alarm_status_4", alarm_status_4},
 	{"global_e_status", global_enabled_status},
-	{"current_time_status", current_time_status},
-	{"enable_time_zone_1", enable_time_zone_1},
-	{"disable_time_zone_1", disable_time_zone_1},
+	{"current_t_status", current_time_status},
+	{"enable_t_zone_1", enable_time_zone_1_status},
+	{"disable_t_zone_1", disable_time_zone_1_status},
 	{0, 0}
 };
 
@@ -439,6 +415,7 @@ static void global_enabled_status(HTTPD_SESSION_STRUCT *session)
 	else
 		httpd_sendstr(session->sock, "disabled");
 }
+
 static void current_time_status(HTTPD_SESSION_STRUCT *session)
 {
 	char time_string[32];
@@ -451,9 +428,9 @@ static void current_time_status(HTTPD_SESSION_STRUCT *session)
 	seconds = seconds%60;
 	sprintf(time_string, "%u:%u:%u\n", hours, minutes, seconds);
 	httpd_sendstr(session->sock, time_string);
-	return session->request.content_len;
 }
-static void enable_time_zone_1(HTTPD_SESSION_STRUCT *session)
+
+static void enable_time_zone_1_status(HTTPD_SESSION_STRUCT *session)
 {
 	char time_string[32];
     int hours, minutes, seconds;
@@ -463,9 +440,9 @@ static void enable_time_zone_1(HTTPD_SESSION_STRUCT *session)
 	seconds = seconds%60;
 	sprintf(time_string, "%u:%u:%u\n", hours, minutes, seconds);
 	httpd_sendstr(session->sock, time_string);
-	return session->request.content_len;
 }
-static void disable_time_zone_1(HTTPD_SESSION_STRUCT *session)
+
+static void disable_time_zone_1_status(HTTPD_SESSION_STRUCT *session)
 {
 	//todo copy from above enable_time_zone_1
 }
