@@ -75,6 +75,10 @@ static HTTPD_CGI_LINK_STRUCT http_cgi_params[] = {{"new", new_callback}, {0,0}};
 const HTTPD_FN_LINK_STRUCT fn_lnk_tbl[] = {
 	{"alarm_status_1", alarm_status_1},
 	{"alarm_status_2", alarm_status_2},
+	{"alarm_status_3", alarm_status_3},
+	{"alarm_status_4", alarm_status_4},
+	{"global_enabled_status", global_enabled_status},
+
 	{0, 0}
 };
 
@@ -140,19 +144,68 @@ _mqx_int new_callback(HTTPD_SESSION_STRUCT *session)
 
 void toggle_room_enabled(room)
 {
-if (room==1) {
-	if (room_enabled_1) {
-		room_enabled_1=0;
-		btnled_set_value(hmi_client, HMI_LED_1, HMI_VALUE_OFF);
-		alarm1=0;	
-	} else {
-		room_enabled_1=1;
-		if (global_enabled) {
-			btnled_set_value(hmi_client, HMI_LED_1, HMI_VALUE_ON);	
-		}
-		alarm1=0;
+	switch ( room ) {
+		case 1:
+			  if (room_enabled_1) { //If room is enabled then disable it and turn the corresponding led off and turn of the alarm.
+					room_enabled_1=0;
+					btnled_set_value(hmi_client, HMI_LED_1, HMI_VALUE_OFF);
+					alarm1=0;	
+				} 
+				else {
+					room_enabled_1=1; //If room is disabled then enable it and if the the alarmsystem is enabled turn the corresponding led on and turn of the alarm.
+					if (global_enabled) {
+						btnled_set_value(hmi_client, HMI_LED_1, HMI_VALUE_ON);	
+					}
+					alarm1=0;
+				}
+			  break;
+		case 2:
+			  if (room_enabled_2) { //If room is enabled then disable it and turn the corresponding led off and turn of the alarm.
+					room_enabled_2=0;
+					btnled_set_value(hmi_client, HMI_LED_2, HMI_VALUE_OFF);
+					alarm2=0;	
+				} 
+				else {
+					room_enabled_1=1; //If room is disabled then enable it and if the the alarmsystem is enabled turn the corresponding led on and turn of the alarm.
+					if (global_enabled) {
+						btnled_set_value(hmi_client, HMI_LED_2, HMI_VALUE_ON);	
+					}
+					alarm2=0;
+				}
+			  break;
+		case 3:
+			  if (room_enabled_3) { //If room is enabled then disable it and turn the corresponding led off and turn of the alarm.
+					room_enabled_3=0;
+					btnled_set_value(hmi_client, HMI_LED_3, HMI_VALUE_OFF);
+					alarm3=0;	
+				} 
+				else {
+					room_enabled_3=1; //If room is disabled then enable it and if the the alarmsystem is enabled turn the corresponding led on and turn of the alarm.
+					if (global_enabled) {
+						btnled_set_value(hmi_client, HMI_LED_3, HMI_VALUE_ON);	
+					}
+					alarm3=0;
+				}
+			  break;
+		case 4:
+			  if (room_enabled_4) { //If room is enabled then disable it and turn the corresponding led off and turn of the alarm.
+					room_enabled_4=0;
+					btnled_set_value(hmi_client, HMI_LED_4, HMI_VALUE_OFF);
+					alarm4=0;	
+				} 
+				else {
+					room_enabled_4=1; //If room is disabled then enable it and if the the alarmsystem is enabled turn the corresponding led on and turn of the alarm.
+					if (global_enabled) {
+						btnled_set_value(hmi_client, HMI_LED_4, HMI_VALUE_ON);	
+					}
+					alarm4=0;
+				}
+			  break;
+
+		default:
+		  
+				break;
 	}
-}
 }
 
 void button_push_1 (void *ptr)
@@ -264,18 +317,47 @@ void manage_leds (){
 
 static void alarm_status_1(HTTPD_SESSION_STRUCT *session)
 {
-	if (room_enabled_1==1)
-		httpd_sendstr(session->sock, "on");
+	if ((room_enabled_1==1) && (alarm1 == 0)
+		httpd_sendstr(session->sock, "enabled");
+	if ((room_enabled_1==1) && (alarm1 == 1)
+		httpd_sendstr(session->sock, "triggered");
 	else
-		httpd_sendstr(session->sock, "off");
+		httpd_sendstr(session->sock, "disabled");
 }
 
 static void alarm_status_2(HTTPD_SESSION_STRUCT *session)
 {
-	if (room_enabled_2==1)
-		httpd_sendstr(session->sock, "on");
+	if ((room_enabled_1==1) && (alarm1 == 0)
+		httpd_sendstr(session->sock, "enabled");
+	if ((room_enabled_1==1) && (alarm1 == 1)
+		httpd_sendstr(session->sock, "triggered");
 	else
-		httpd_sendstr(session->sock, "off");
+		httpd_sendstr(session->sock, "disabled");
+}
+static void alarm_status_3(HTTPD_SESSION_STRUCT *session)
+{
+	if ((room_enabled_1==1) && (alarm1 == 0)
+		httpd_sendstr(session->sock, "enabled");
+	if ((room_enabled_1==1) && (alarm1 == 1)
+		httpd_sendstr(session->sock, "triggered");
+	else
+		httpd_sendstr(session->sock, "disabled");
+}
+static void alarm_status_4(HTTPD_SESSION_STRUCT *session)
+{
+	if ((room_enabled_1==1) && (alarm1 == 0)
+		httpd_sendstr(session->sock, "enabled");
+	if ((room_enabled_1==1) && (alarm1 == 1)
+		httpd_sendstr(session->sock, "triggered");
+	else
+		httpd_sendstr(session->sock, "disabled");
+}
+static void global_enabled_status(HTTPD_SESSION_STRUCT *session)
+{
+	if (global_enabled)
+		httpd_sendstr(session->sock, "enabled");
+	else
+		httpd_sendstr(session->sock, "disabled");
 }
 /* EOF */
 
