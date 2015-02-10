@@ -60,7 +60,7 @@ unsigned char http_refresh_text[] =
 "<Body>"
 "<center>"
 "<font size=20>"
-"<a href=""new.cgi?1?"">Alarm 1 is <% alarm_status_1 %></a>"
+"<a href='new.cgi?1?'>Alarm 1 is <% alarm_status_1 %></a>"
 "<br>"
 "<a href=""new.cgi?2?"">Alarm 2 is <% alarm_status_2 %></a>"
 "<br>"
@@ -85,7 +85,7 @@ unsigned char http_refresh_text2[] =
 "<FORM METHOD=""LINK"" ACTION=""http://192.168.105.192/new.cgi?1""><INPUT TYPE=""submit"" VALUE=""<% alarm_status_1 %>""></FORM>"
 "<br>Alarm 2 is <FORM METHOD=""LINK"" ACTION=""http://192.168.105.192/new.cgi?2""><INPUT TYPE=""submit"" VALUE=""<% alarm_status_2 %>""></FORM></Body>";
 
-char page[] = "<!DOCTYPE HTML><html lang=""en-US""><head><meta charset=""UTF-8""><meta http-equiv=""refresh"" content=""1;url=index.html""><script type=""text/javascript"">window.location.href = ""index.html/""</script><title>Page Redirection</title></head><body>If you are not redirected automatically, follow the <a href='index.html'>link to example</a></body></html>";
+char page[] = "<!DOCTYPE HTML><html lang=""en-US""><head><meta charset=""UTF-8""><meta http-equiv=""refresh"" content=""1;url=index.html""><script type=""text/javascript"">window.location.href = ""index.html/""</script><title>Page Redirection</title></head><body>If you are not redirected automatically, follow the <a href='index.html'>link to example</a></body></html>"; //redirects you to index.html
 const TFS_DIR_ENTRY static_data[] = {	{"/index.html", 0, http_refresh_text, sizeof(http_refresh_text)}, {0,0,0,0}};
 static HTTPD_CGI_LINK_STRUCT http_cgi_params[] = {{"new", new_callback}, {0,0}};
 
