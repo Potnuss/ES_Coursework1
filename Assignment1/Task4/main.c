@@ -53,7 +53,21 @@ TASK_TEMPLATE_STRUCT MQX_template_list[] =
  * *
  * *END------------------------------------------------------------------*/
 HMI_CLIENT_STRUCT_PTR hmi_client;
-unsigned char http_refresh_text[] = "<Head><Title>Alarm Status</Title></Head><Body>Alarm 1 is  <a href=""new.cgi?1?"">toggle1</a> <FORM METHOD=""LINK"" ACTION=""http://192.168.105.192/new.cgi?1""><INPUT TYPE=""submit"" VALUE=""<% alarm_status_1 %>""></FORM><br>Alarm 2 is <FORM METHOD=""LINK"" ACTION=""http://192.168.105.192/new.cgi?2""><INPUT TYPE=""submit"" VALUE=""<% alarm_status_2 %>""></FORM></Body>";
+unsigned char http_refresh_text[] = "<Head>"
+"<Title>Alarm Status</Title>"
+"</Head>"
+"<Body>"
+"Alarm 1 is  <a href=""new.cgi?1?""><% alarm_status_1 %></a>"
+"<br>"
+"Alarm 2 is  <a href=""new.cgi?2?""><% alarm_status_2 %></a>"
+"</Body>";
+
+unsigned char http_refresh_text2[] = 
+"<Head><Title>Alarm Status</Title></Head>"
+"<Body>Alarm 1 is  <a href=""new.cgi?1?"">toggle1</a> "
+"<FORM METHOD=""LINK"" ACTION=""http://192.168.105.192/new.cgi?1""><INPUT TYPE=""submit"" VALUE=""<% alarm_status_1 %>""></FORM>"
+"<br>Alarm 2 is <FORM METHOD=""LINK"" ACTION=""http://192.168.105.192/new.cgi?2""><INPUT TYPE=""submit"" VALUE=""<% alarm_status_2 %>""></FORM></Body>";
+
 char page[] = "<!DOCTYPE HTML><html lang=""en-US""><head><meta charset=""UTF-8""><meta http-equiv=""refresh"" content=""1;url=index.html""><script type=""text/javascript"">window.location.href = ""index.html/""</script><title>Page Redirection</title></head><body>If you are not redirected automatically, follow the <a href='index.html'>link to example</a></body></html>";
 const TFS_DIR_ENTRY static_data[] = {	{"/index.html", 0, http_refresh_text, sizeof(http_refresh_text)}, {0,0,0,0}};
 static HTTPD_CGI_LINK_STRUCT http_cgi_params[] = {{"new", new_callback}, {0,0}};
@@ -250,7 +264,7 @@ void manage_leds (){
 
 static void alarm_status_1(HTTPD_SESSION_STRUCT *session)
 {
-	if (alarm1==1)
+	if (room_enabled_1==1)
 		httpd_sendstr(session->sock, "on");
 	else
 		httpd_sendstr(session->sock, "off");
@@ -258,7 +272,7 @@ static void alarm_status_1(HTTPD_SESSION_STRUCT *session)
 
 static void alarm_status_2(HTTPD_SESSION_STRUCT *session)
 {
-	if (alarm2==1)
+	if (room_enabled_2==1)
 		httpd_sendstr(session->sock, "on");
 	else
 		httpd_sendstr(session->sock, "off");
