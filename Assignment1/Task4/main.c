@@ -83,14 +83,14 @@ unsigned char http_refresh_text[] =
 "Schedule<br>"
 "<table border=1>"
 "<tr><td>zone</td><td>time</td><td>action</td></tr>"
-"<tr><td>1</td><td><% enable_time_zone_1 %></td><td>enable</td></tr>"
-"<tr><td>2</td><td><% enable_time_zone_2 %></td><td>enable</td></tr>"
-"<tr><td>3</td><td><% enable_time_zone_3 %></td><td>enable</td></tr>"
-"<tr><td>4</td><td><% enable_time_zone_4 %></td><td>enable</td></tr>"
-"<tr><td>1</td><td><% disable_time_zone_1 %></td><td>disable</td></tr>"
-"<tr><td>2</td><td><% disable_time_zone_2 %></td><td>disable</td></tr>"
-"<tr><td>3</td><td><% disable_time_zone_3 %></td><td>disable</td></tr>"
-"<tr><td>4</td><td><% disable_time_zone_4 %></td><td>disable</td></tr>"
+"<tr><td>1</td><td><% enable_t_zone_1 %></td><td>enable</td></tr>"
+"<tr><td>2</td><td><% enable_t_zone_2 %></td><td>enable</td></tr>"
+"<tr><td>3</td><td><% enable_t_zone_3 %></td><td>enable</td></tr>"
+"<tr><td>4</td><td><% enable_t_zone_4 %></td><td>enable</td></tr>"
+"<tr><td>1</td><td><% d_time_1 %></td><td>disable</td></tr>"
+"<tr><td>2</td><td><% d_time_2 %></td><td>disable</td></tr>"
+"<tr><td>3</td><td><% d_time_3 %></td><td>disable</td></tr>"
+"<tr><td>4</td><td><% d_time_4 %></td><td>disable</td></tr>"
 "</table>"
 
 "<br><br><br>"
@@ -128,13 +128,13 @@ unsigned char http_refresh_text[] =
 		
 "<td><input type='submit' value='Submit'></td>"
 "</tr>"
-
 "</table>"
+
 "<br>"
 "Set the system time will return the url 'settime.cgi?hh=00&mm=00&ss=00?'.<br>"
 "Setting the enable/disable time for 'setzone.cgi?enable==0&zone==1&hh=00&mm=00&ss=00'.<br>"
 "<br>"
-"The alarm system clock is currently set to <% current_time_status %> <br>"
+"The alarm system clock is currently set to <% time %> <br>"
 "<br>"
 "<br>"
 "<form action='new.cgi?1?' method='post'><INPUT TYPE='submit' VALUE='Alarm 1 is <% alarm_status_1 %>'></FORM>"
@@ -162,7 +162,13 @@ const HTTPD_FN_LINK_STRUCT fn_lnk_tbl[] = {
 	{"global_e_status", global_enabled_status},
 	{"time", current_time_status},
 	{"enable_t_zone_1", enable_time_zone_1_status},
-	{"disable_t_zone_1", disable_time_zone_1_status},
+	{"enable_t_zone_2", enable_time_zone_2_status},
+	{"enable_t_zone_3", enable_time_zone_3_status},
+	{"enable_t_zone_4", enable_time_zone_4_status},
+	{"d_time_1", disable_time_zone_1_status},
+	{"d_time_2", disable_time_zone_2_status},
+	{"d_time_3", disable_time_zone_3_status},
+	{"d_time_4", disable_time_zone_4_status},
 	{0, 0}
 };
 
@@ -485,19 +491,53 @@ static void current_time_status(HTTPD_SESSION_STRUCT *session)
 
 static void enable_time_zone_1_status(HTTPD_SESSION_STRUCT *session)
 {
+	print_time_to_httpd(session, enable_time_zone_seconds[0]);
+}
+
+static void enable_time_zone_2_status(HTTPD_SESSION_STRUCT *session)
+{
+	print_time_to_httpd(session, enable_time_zone_seconds[1]);
+}
+
+static void enable_time_zone_3_status(HTTPD_SESSION_STRUCT *session)
+{
+	print_time_to_httpd(session, enable_time_zone_seconds[2]);
+}
+
+static void enable_time_zone_4_status(HTTPD_SESSION_STRUCT *session)
+{
+	print_time_to_httpd(session, enable_time_zone_seconds[3]);
+}
+
+static void disable_time_zone_1_status(HTTPD_SESSION_STRUCT *session)
+{
+	print_time_to_httpd(session, disable_time_zone_seconds[0]);
+}
+
+static void disable_time_zone_2_status(HTTPD_SESSION_STRUCT *session)
+{
+	print_time_to_httpd(session, disable_time_zone_seconds[1]);
+}
+
+static void disable_time_zone_3_status(HTTPD_SESSION_STRUCT *session)
+{
+	print_time_to_httpd(session, disable_time_zone_seconds[2]);
+}
+
+static void disable_time_zone_4_status(HTTPD_SESSION_STRUCT *session)
+{
+	print_time_to_httpd(session, disable_time_zone_seconds[3]);
+}
+
+static void print_time_to_httpd(HTTPD_SESSION_STRUCT *session, int seconds)
+{
 	char time_string[32];
-    	int hours, minutes, seconds;
-	seconds = enable_time_zone_seconds[0];
+    	int hours, minutes;
 	hours = seconds/3600;
 	minutes = (seconds%3600)/60;
 	seconds = seconds%60;
 	sprintf(time_string, "%u:%u:%u\n", hours, minutes, seconds);
 	httpd_sendstr(session->sock, time_string);
-}
-
-static void disable_time_zone_1_status(HTTPD_SESSION_STRUCT *session)
-{
-	//todo copy from above enable_time_zone_1
 }
 /* EOF */
 
