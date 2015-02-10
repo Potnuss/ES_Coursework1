@@ -108,17 +108,15 @@ const HTTPD_FN_LINK_STRUCT fn_lnk_tbl[] = {
 	{0, 0}
 };
 
-short alarm1 = 0; //1 if the alarm has been triggered
-short alarm2 = 0;
-short alarm3 = 0;
-short alarm4 = 0;
+short alarm[] = {0,0,0,0};//1 if the alarm has been triggered
 short room_enabled_1 = 1; //1 if an individual room's alarm is enabled
 short room_enabled_2 = 1;
 short room_enabled_3 = 1;
 short room_enabled_4 = 1;
 short global_enabled = 0; //1 if the alarm system is enabled
 int flash_counter = 0; //flash the leds when this reaches a threshold
-int enable_time_zone_1_seconds = 1000;
+int enable_time_zone_seconds[4] = {0,0,0,0};
+int disable_time_zone_seconds[4] = {0,0,0,0};
 void Main_task(uint_32 initial_data)
 {
 	static HTTPD_ROOT_DIR_STRUCT http_root_dir[] = {{"","tfs:"},{0,0}};
@@ -188,7 +186,7 @@ _mqx_int setzone_callback(HTTPD_SESSION_STRUCT *session)
 	//enable_time_zone_1_seconds=seconds+60*minutes+3600*hours;
 	//TODO if ZONE == 1 then...
 	//TODO if ZONE == 2 then...
-	enable_time_zone_1_seconds = atoi(session->request.urldata);//Just for test, only uses seconds right now
+	enable_time_zone_seconds[0] = atoi(session->request.urldata);//Just for test, only uses seconds right now
 	
 	httpd_sendstr(session->sock, page);
 	return session->request.content_len;	
@@ -201,56 +199,56 @@ void toggle_room_enabled(room)
 			  if (room_enabled_1) { //If room is enabled then disable it and turn the corresponding led off and turn of the alarm.
 					room_enabled_1=0;
 					btnled_set_value(hmi_client, HMI_LED_1, HMI_VALUE_OFF);
-					alarm1=0;	
+					alarm[0]=0;	
 				} 
 				else {
 					room_enabled_1=1; //If room is disabled then enable it and if the the alarmsystem is enabled turn the corresponding led on and turn of the alarm.
 					if (global_enabled) {
 						btnled_set_value(hmi_client, HMI_LED_1, HMI_VALUE_ON);	
 					}
-					alarm1=0;
+					alarm[0]=0;
 				}
 			  break;
 		case 2:
 			  if (room_enabled_2) { //If room is enabled then disable it and turn the corresponding led off and turn of the alarm.
 					room_enabled_2=0;
 					btnled_set_value(hmi_client, HMI_LED_2, HMI_VALUE_OFF);
-					alarm2=0;	
+					alarm[1]=0;	
 				} 
 				else {
 					room_enabled_1=1; //If room is disabled then enable it and if the the alarmsystem is enabled turn the corresponding led on and turn of the alarm.
 					if (global_enabled) {
 						btnled_set_value(hmi_client, HMI_LED_2, HMI_VALUE_ON);	
 					}
-					alarm2=0;
+					alarm[1]=0;
 				}
 			  break;
 		case 3:
 			  if (room_enabled_3) { //If room is enabled then disable it and turn the corresponding led off and turn of the alarm.
 					room_enabled_3=0;
 					btnled_set_value(hmi_client, HMI_LED_3, HMI_VALUE_OFF);
-					alarm3=0;	
+					alarm[2]=0;	
 				} 
 				else {
 					room_enabled_3=1; //If room is disabled then enable it and if the the alarmsystem is enabled turn the corresponding led on and turn of the alarm.
 					if (global_enabled) {
 						btnled_set_value(hmi_client, HMI_LED_3, HMI_VALUE_ON);	
 					}
-					alarm3=0;
+					alarm[2]=0;
 				}
 			  break;
 		case 4:
 			  if (room_enabled_4) { //If room is enabled then disable it and turn the corresponding led off and turn of the alarm.
 					room_enabled_4=0;
 					btnled_set_value(hmi_client, HMI_LED_4, HMI_VALUE_OFF);
-					alarm4=0;	
+					alarm[3]=0;	
 				} 
 				else {
 					room_enabled_4=1; //If room is disabled then enable it and if the the alarmsystem is enabled turn the corresponding led on and turn of the alarm.
 					if (global_enabled) {
 						btnled_set_value(hmi_client, HMI_LED_4, HMI_VALUE_ON);	
 					}
-					alarm4=0;
+					alarm[3]=0;
 				}
 			  break;
 
@@ -263,14 +261,14 @@ void toggle_room_enabled(room)
 void button_push_1 (void *ptr)
 {
 	if (room_enabled_1 && global_enabled) {
-		alarm1=1;
+		alarm[0]=1;
 		btnled_toogle(hmi_client, HMI_GET_LED_ID(1));
 	}
 }
 void button_push_2 (void *ptr)
 {
 	if (room_enabled_2 && global_enabled) {
-		alarm2=1;
+		alarm[1]=1;
 		btnled_toogle(hmi_client, HMI_GET_LED_ID(2));
 	}
 
@@ -279,7 +277,7 @@ void button_push_2 (void *ptr)
 void button_push_3 (void *ptr)
 {
 	if (room_enabled_3 && global_enabled) {
-		alarm3=1;
+		alarm[2]=1;
 		btnled_toogle(hmi_client, HMI_GET_LED_ID(3));
 	}
 }
@@ -287,7 +285,7 @@ void button_push_3 (void *ptr)
 void button_push_4 (void *ptr)
 {
 	if (room_enabled_4 && global_enabled) {
-		alarm4=1;
+		alarm[3]=1;
 		btnled_toogle(hmi_client, HMI_GET_LED_ID(4));
 	}
 }
@@ -298,10 +296,8 @@ void hush_button_push (void *ptr)
 	
 }
 void hush (){
-	alarm1=0;
-	alarm2=0;
-	alarm3=0;
-	alarm4=0;
+	int i;
+	for (i=0; (i<4); i++) {alarm[i]=0;};
 	if(global_enabled){
 		check_individual_led_enables();
 	}
@@ -330,12 +326,10 @@ void check_individual_led_enables() //turns on each led if it is individually en
 
 void toggle_enable()
 {
+	int i;
 	if(global_enabled == 1){
 		global_enabled = 0;
-		alarm1=0;
-		alarm2=0;
-		alarm3=0;
-		alarm4=0;
+		for (i=0; (i<4); i++) {alarm[i]=0;};
 		btnled_set_value(hmi_client, HMI_LED_1, HMI_VALUE_OFF);
 		btnled_set_value(hmi_client, HMI_LED_2, HMI_VALUE_OFF);
 		btnled_set_value(hmi_client, HMI_LED_3, HMI_VALUE_OFF);
@@ -350,16 +344,16 @@ void toggle_enable()
 void manage_leds (){
 	if (flash_counter > 80) {
 		flash_counter = 0;
-		if (alarm1) {
+		if (alarm[0]) {
 			btnled_toogle(hmi_client, HMI_GET_LED_ID(1));
 		}
-		if (alarm2) {
+		if (alarm[1]) {
 			btnled_toogle(hmi_client, HMI_GET_LED_ID(2));
 		}
-		if (alarm3) {
+		if (alarm[2]) {
 			btnled_toogle(hmi_client, HMI_GET_LED_ID(3));
 		}
-		if (alarm4) {
+		if (alarm[3]) {
 			btnled_toogle(hmi_client, HMI_GET_LED_ID(4));
 		}
 	}
@@ -370,7 +364,7 @@ void manage_leds (){
 static void alarm_status_1(HTTPD_SESSION_STRUCT *session)
 {
 	if (room_enabled_1==1){
-		if (alarm1 == 1)
+		if (alarm[0] == 1)
 			httpd_sendstr(session->sock, "triggered");
 		else
 			httpd_sendstr(session->sock, "enabled");
@@ -382,7 +376,7 @@ static void alarm_status_1(HTTPD_SESSION_STRUCT *session)
 static void alarm_status_2(HTTPD_SESSION_STRUCT *session)
 {
 	if (room_enabled_2==1){
-		if (alarm2 == 1)
+		if (alarm[1] == 1)
 			httpd_sendstr(session->sock, "triggered");
 		else
 			httpd_sendstr(session->sock, "enabled");
@@ -393,7 +387,7 @@ static void alarm_status_2(HTTPD_SESSION_STRUCT *session)
 static void alarm_status_3(HTTPD_SESSION_STRUCT *session)
 {
 	if (room_enabled_3==1){
-		if (alarm3 == 1)
+		if (alarm[2] == 1)
 			httpd_sendstr(session->sock, "triggered");
 		else
 			httpd_sendstr(session->sock, "enabled");
@@ -404,7 +398,7 @@ static void alarm_status_3(HTTPD_SESSION_STRUCT *session)
 static void alarm_status_4(HTTPD_SESSION_STRUCT *session)
 {
 	if (room_enabled_4==1){
-		if (alarm4 == 1)
+		if (alarm[3] == 1)
 			httpd_sendstr(session->sock, "triggered");
 		else
 			httpd_sendstr(session->sock, "enabled");
@@ -422,12 +416,11 @@ static void global_enabled_status(HTTPD_SESSION_STRUCT *session)
 
 static void current_time_status(HTTPD_SESSION_STRUCT *session)
 {
-   	//RTC_TIME_STRUCT curr_time;
-	//_rtc_get_time(&curr_time);
-	//seconds = curr_time.seconds;
-	char time_string[32];
-    	int hours, minutes, seconds;
-	seconds = enable_time_zone_1_seconds;
+   	char time_string[32];
+	int hours, minutes, seconds;
+	RTC_TIME_STRUCT curr_time;
+	_rtc_get_time(&curr_time);
+	seconds = curr_time.seconds;
 	hours = seconds/3600;
 	minutes = (seconds%3600)/60;
 	seconds = seconds%60;
@@ -439,7 +432,7 @@ static void enable_time_zone_1_status(HTTPD_SESSION_STRUCT *session)
 {
 	char time_string[32];
     	int hours, minutes, seconds;
-	seconds = enable_time_zone_1_seconds;
+	seconds = enable_time_zone_seconds[0];
 	hours = seconds/3600;
 	minutes = (seconds%3600)/60;
 	seconds = seconds%60;
