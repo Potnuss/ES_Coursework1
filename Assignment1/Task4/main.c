@@ -246,12 +246,27 @@ _mqx_int settime_callback(HTTPD_SESSION_STRUCT *session)
 {
 	int hours, minutes, seconds;
 	RTC_TIME_STRUCT the_new_time;
-	sscanf(session->request.urldata, "%u:%u:%u", &hours, &minutes, &seconds);//TODO
-	the_new_time.seconds=seconds+60*minutes+3600*hours;
-	
-	//seconds = atoi(session->request.urldata);//Just for test
-	//the_new_time.seconds=seconds;//Just for test, only uses seconds right now
+	char hourstr[3] = "";
+	char minutestr[3] = "";
+	char secondstr[3] = "";
 
+	hourstr[0]=session->request.urldata[3];
+	hourstr[1]=session->request.urldata[4];
+	hourstr[2]='\0';
+
+	minutestr[0]=session->request.urldata[9];
+	minutestr[1]=session->request.urldata[10];
+	minutestr[2]='\0';
+
+	secondstr[0]=session->request.urldata[15];
+	secondstr[1]=session->request.urldata[16];
+	secondstr[2]='\0';
+	
+	hours=atoi(hourstr);
+	minutes=atoi(minutestr);
+	seconds=atoi(secondstr);
+	
+	the_new_time.seconds=seconds+60*minutes+3600*hours;
 	_rtc_set_time(&the_new_time); //set the new time
 
 	httpd_sendstr(session->sock, page);
