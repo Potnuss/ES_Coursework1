@@ -37,24 +37,21 @@
 </table>
 
 <br><br><br>
+<form action='setzone.cgi'>
 <table>
 <tr>
 <td>
-<form action=''>
 <input type='radio' name='enable' value='1'>Enable<br>
 <input type='radio' name='enable' value='0'>Disable
-</form>
 </td>
 
 <td> the alarm in </td>
 
 <td>
-<form action=''>
 <input type='radio' name='zone' value='1'>Zone 1<br>
 <input type='radio' name='zone' value='2'>Zone 2<br>
 <input type='radio' name='zone' value='3'>Zone 3<br>
 <input type='radio' name='zone' value='4'>Zone 4
-</form>
 </td>
 
 <td> at time </td>
@@ -71,8 +68,9 @@
 		
 <td><input type='submit' value='Submit'></td>
 </tr>
-
 </table>
+</form>
+
 <br>
 Set the system time will return the url 'settime.cgi?hh=00&mm=00&ss=00?'.<br>
 Setting the enable/disable time for 'setzone.cgi?enable==0&zone==1&hh=00&mm=00&ss=00'.<br>

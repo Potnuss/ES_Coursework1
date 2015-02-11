@@ -97,21 +97,18 @@ unsigned char http_refresh_text[] =
 "<table>"
 "<tr>"
 "<td>"
-"<form action=''>"
+"<form action='setzone.cgi'>"
 "<input type='radio' name='enable' value='1'>Enable<br>"
 "<input type='radio' name='enable' value='0'>Disable"
-"</form>"
 "</td>"
 
 "<td> the alarm in </td>"
 
 "<td>"
-"<form action=''>"
 "<input type='radio' name='zone' value='1'>Zone 1<br>"
 "<input type='radio' name='zone' value='2'>Zone 2<br>"
 "<input type='radio' name='zone' value='3'>Zone 3<br>"
 "<input type='radio' name='zone' value='4'>Zone 4"
-"</form>"
 "</td>"
 
 "<td> at time </td>"
@@ -129,10 +126,11 @@ unsigned char http_refresh_text[] =
 "<td><input type='submit' value='Submit'></td>"
 "</tr>"
 "</table>"
+"</form>"
 
 "<br>"
 "Set the system time will return the url 'settime.cgi?hh=00&mm=00&ss=00?'.<br>"
-"Setting the enable/disable time for 'setzone.cgi?enable==0&zone==1&hh=00&mm=00&ss=00'.<br>"
+"Setting the enable/disable time for 'setzone.cgi?enable==0&zone===1&hh==00&mm==00&ss==00'.<br>"
 "<br>"
 "The alarm system clock is currently set to <% time %> <br>"
 "<br>"
@@ -143,12 +141,6 @@ unsigned char http_refresh_text[] =
 "</center>"
 "</Body>"
 "</html>";
-
-unsigned char http_refresh_text2[] = 
-"<Head><Title>Alarm Status</Title></Head>"
-"<Body>Alarm 1 is  <a href=""new.cgi?1?"">toggle1</a> "
-"<FORM METHOD=""LINK"" ACTION=""http://192.168.105.192/new.cgi?1""><INPUT TYPE=""submit"" VALUE=""<% alarm_status_1 %>""></FORM>"
-"<br>Alarm 2 is <FORM METHOD=""LINK"" ACTION=""http://192.168.105.192/new.cgi?2""><INPUT TYPE=""submit"" VALUE=""<% alarm_status_2 %>""></FORM></Body>";
 
 char page[] = "<!DOCTYPE HTML><html lang=""en-US""><head><meta charset=""UTF-8""><meta http-equiv=""refresh"" content=""1;url=index.html""><script type=""text/javascript"">window.location.href = ""index.html/""</script><title>Page Redirection</title></head><body>If you are not redirected automatically, follow the <a href='index.html'>link to example</a></body></html>"; //redirects you to index.html
 const TFS_DIR_ENTRY static_data[] = {	{"/index.html", 0, http_refresh_text, sizeof(http_refresh_text)}, {0,0,0,0}};
@@ -226,30 +218,59 @@ _mqx_int new_callback(HTTPD_SESSION_STRUCT *session)
 	httpd_sendstr(session->sock, page);
 	return session->request.content_len;	
 }
+
 _mqx_int settime_callback(HTTPD_SESSION_STRUCT *session)
 {
 	int hours, minutes, seconds;
 	RTC_TIME_STRUCT the_new_time;
-	//sscanf(session->request.urldata, "%u:%u:%u", &hours, &minutes, &seconds);//TODO
-	//the_new_time.seconds=seconds+60*minutes+3600*hours;
+	sscanf(session->request.urldata, "%u:%u:%u", &hours, &minutes, &seconds);//TODO
+	the_new_time.seconds=seconds+60*minutes+3600*hours;
 	
-	seconds = atoi(session->request.urldata);//Just for test
-	the_new_time.seconds=seconds;//Just for test, only uses seconds right now
+	//seconds = atoi(session->request.urldata);//Just for test
+	//the_new_time.seconds=seconds;//Just for test, only uses seconds right now
+
 	_rtc_set_time(&the_new_time); //set the new time
 
 	httpd_sendstr(session->sock, page);
 	return session->request.content_len;	
 }
+
 _mqx_int setzone_callback(HTTPD_SESSION_STRUCT *session)
 {
+	//char[] inputdata;
+	//char[] temp= {'0', '0'};
+	int enable, zone, hours, minutes, seconds;
 	//int hours, minutes, seconds;
 	//sscanf(session->request.urldata, "%u:%u:%u", &hours, &minutes, &seconds);//TODO
 	//enable_time_zone_1_seconds=seconds+60*minutes+3600*hours;
 	//TODO if ZONE == 1 then...
 	//TODO if ZONE == 2 then...
-	enable_time_zone_seconds[0] = atoi(session->request.urldata);//Just for test, only uses seconds right now
+	/*inputdata = session->request.urldata;
+
+	temp[1]=inputdata[8];
+	enable=atoi(temp);
+	temp[1]=inputdata[16];
+	zone=atoi(temp);
+
+	temp[0]=inputdata[21];
+	temp[1]=inputdata[22];
+	hours=atoi(temp);
+	temp[0]=inputdata[27];
+	temp[1]=inputdata[28];
+	minutes=atoi(temp);
+	temp[0]=inputdata[33];
+	temp[1]=inputdata[34];
+	seconds=atoi(temp);*/
 	
-	httpd_sendstr(session->sock, page);
+	sscanf(session->request.urldata, "enable=%u&zone=%u&hh=%u&mm=%u&ss=%u", &enable, &zone, &hours, &minutes, &seconds);
+
+	if (enable==1) {
+		enable_time_zone_seconds[zone] = seconds + 60*minutes + 60*hours;
+	} else {
+		disable_time_zone_seconds[zone] = seconds + 60*minutes + 60*hours;
+	}
+	
+	httpd_sendstr(session->sock, session->request.urldata);
 	return session->request.content_len;	
 }
 
