@@ -129,7 +129,6 @@ unsigned char http_refresh_text[] =
 "</form>"
 
 "<br>"
-//Start of new code
 "<form action='settime.cgi'>"
 "<table>"
 "<tr>"
@@ -150,7 +149,6 @@ unsigned char http_refresh_text[] =
 "</tr>"
 "</table>"
 "</form>"
-//End of new code
 "<br>"
 "Set the system time will return the url 'settime.cgi?hh=00&mm=00&ss=00?'.<br>"
 "Setting the enable/disable time for 'setzone.cgi?enable=0&zone=1&hh=00&mm=00&ss=00'.<br>"
@@ -381,18 +379,12 @@ void enable_button_push (void *ptr)
 
 void check_individual_led_enables() //turns on each led if it is individually enabled, ignoring the global enable
 {
-		if (web_room_enabled[0]) {
-			btnled_set_value(hmi_client, HMI_LED_1, HMI_VALUE_ON);
+	int i;
+	for (i=0; (i<4); i++) {
+		if (web_room_enabled[i]) {
+			btnled_set_value(hmi_client, HMI_GET_LED_ID(i+1), HMI_VALUE_ON);
 		}
-		if (web_room_enabled[1]) {
-			btnled_set_value(hmi_client, HMI_LED_2, HMI_VALUE_ON);
-		}
-		if (web_room_enabled[2]) {
-			btnled_set_value(hmi_client, HMI_LED_3, HMI_VALUE_ON);
-		}
-		if (web_room_enabled[3]) {
-			btnled_set_value(hmi_client, HMI_LED_4, HMI_VALUE_ON);
-		}
+	}
 }
 
 void toggle_enable()
@@ -400,11 +392,10 @@ void toggle_enable()
 	int i;
 	if(global_enabled == 1){
 		global_enabled = 0;
-		for (i=0; (i<4); i++) {alarm[i]=0;};
-		btnled_set_value(hmi_client, HMI_LED_1, HMI_VALUE_OFF);
-		btnled_set_value(hmi_client, HMI_LED_2, HMI_VALUE_OFF);
-		btnled_set_value(hmi_client, HMI_LED_3, HMI_VALUE_OFF);
-		btnled_set_value(hmi_client, HMI_LED_4, HMI_VALUE_OFF);
+		for (i=0; (i<4); i++) {
+			alarm[i]=0;
+			btnled_set_value(hmi_client, HMI_GET_LED_ID(i+1), HMI_VALUE_OFF);
+		};
 	}
 	else{
 		global_enabled = 1;
@@ -440,10 +431,10 @@ void manage_leds (){
 	flash_counter++;
 }
 
-static void alarm_status_1(HTTPD_SESSION_STRUCT *session)
+static void print_alarm_status_to_httpd(HTTPD_SESSION_STRUCT *session, int zone)
 {
-	if (web_room_enabled[0]==1){
-		if (alarm[0] == 1)
+	if (web_room_enabled[zone]==1){
+		if (alarm[zone] == 1)
 			httpd_sendstr(session->sock, "triggered");
 		else
 			httpd_sendstr(session->sock, "enabled");
@@ -452,38 +443,22 @@ static void alarm_status_1(HTTPD_SESSION_STRUCT *session)
 		httpd_sendstr(session->sock, "disabled");
 }
 
+static void alarm_status_1(HTTPD_SESSION_STRUCT *session)
+{
+	print_alarm_status_to_httpd(session, 0);
+}
+
 static void alarm_status_2(HTTPD_SESSION_STRUCT *session)
 {
-	if (web_room_enabled[1]==1){
-		if (alarm[1] == 1)
-			httpd_sendstr(session->sock, "triggered");
-		else
-			httpd_sendstr(session->sock, "enabled");
-	}
-	else
-		httpd_sendstr(session->sock, "disabled");
+	print_alarm_status_to_httpd(session, 1);
 }
 static void alarm_status_3(HTTPD_SESSION_STRUCT *session)
 {
-	if (web_room_enabled[2]==1){
-		if (alarm[2] == 1)
-			httpd_sendstr(session->sock, "triggered");
-		else
-			httpd_sendstr(session->sock, "enabled");
-	}
-	else
-		httpd_sendstr(session->sock, "disabled");
+	print_alarm_status_to_httpd(session, 2);
 }
 static void alarm_status_4(HTTPD_SESSION_STRUCT *session)
 {
-	if (web_room_enabled[3]==1){
-		if (alarm[3] == 1)
-			httpd_sendstr(session->sock, "triggered");
-		else
-			httpd_sendstr(session->sock, "enabled");
-	}
-	else
-		httpd_sendstr(session->sock, "disabled");
+	print_alarm_status_to_httpd(session, 3);
 }
 static void global_enabled_status(HTTPD_SESSION_STRUCT *session)
 {
