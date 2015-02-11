@@ -33,7 +33,7 @@ void rtcs_init(void);
 _mqx_int new_callback(HTTPD_SESSION_STRUCT*);
 _mqx_int settime_callback(HTTPD_SESSION_STRUCT*);
 _mqx_int setzone_callback(HTTPD_SESSION_STRUCT*);
-void toggle_room_enabled(int);
+void toggle_web_room_enabled(int);
 void button_push_1 (void*);
 void button_push_2 (void*);
 void button_push_3 (void*);
@@ -43,6 +43,7 @@ void hush();
 void enable_button_push (void*);
 void check_individual_led_enables();
 void toggle_enable();
+int room_enabled(int);
 void manage_leds ();
 void alarm_status_1(HTTPD_SESSION_STRUCT*);
 void alarm_status_2(HTTPD_SESSION_STRUCT*);
@@ -59,6 +60,7 @@ void disable_time_zone_1_status(HTTPD_SESSION_STRUCT*);
 void disable_time_zone_2_status(HTTPD_SESSION_STRUCT*);
 void disable_time_zone_3_status(HTTPD_SESSION_STRUCT*);
 void disable_time_zone_4_status(HTTPD_SESSION_STRUCT*);
+int schedule_enabled(int);
 
 /* PPP device must be set manually and 
 ** must be different from the default IO channel (BSP_DEFAULT_IO_CHANNEL) 
