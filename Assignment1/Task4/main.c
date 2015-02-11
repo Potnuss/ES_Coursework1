@@ -414,7 +414,7 @@ void toggle_enable()
 
 int room_enabled(int room) //returns whether the room is enabled in practice or not
 {
-	if (global_enabled && schedule_enabled(room) && web_room_enabled[room]) {
+	if (global_enabled && schedule_enabled(room) && web_room_enabled[room-1]) {
 		return 1;
 	} else {
 		return 0;
@@ -429,7 +429,7 @@ void manage_leds (){
 			if (alarm[i]) {
 				btnled_toogle(hmi_client, HMI_GET_LED_ID(i+1));
 			} else {
-				if (room_enabled(i)) {
+				if (room_enabled(i+1)) {
 					btnled_set_value(hmi_client, HMI_GET_LED_ID(i+1), HMI_VALUE_ON);
 				} else {
 					btnled_set_value(hmi_client, HMI_GET_LED_ID(i+1), HMI_VALUE_OFF);
@@ -495,16 +495,9 @@ static void global_enabled_status(HTTPD_SESSION_STRUCT *session)
 
 static void current_time_status(HTTPD_SESSION_STRUCT *session)
 {
-   	char time_string[32];
-	int hours, minutes, seconds;
 	RTC_TIME_STRUCT curr_time;
 	_rtc_get_time(&curr_time);
-	seconds = curr_time.seconds;
-	hours = seconds/3600;
-	minutes = (seconds%3600)/60;
-	seconds = seconds%60;
-	sprintf(time_string, "%u:%u:%u\n", hours, minutes, seconds);
-	httpd_sendstr(session->sock, time_string);
+	print_time_to_httpd(session, curr_time.seconds);
 }
 
 static void enable_time_zone_1_status(HTTPD_SESSION_STRUCT *session)
@@ -551,16 +544,47 @@ static void print_time_to_httpd(HTTPD_SESSION_STRUCT *session, int seconds)
 {
 	char time_string[32];
     	int hours, minutes;
-	hours = seconds/3600;
+	hours = (seconds/3600) %24;//24*60*60=86400
 	minutes = (seconds%3600)/60;
 	seconds = seconds%60;
 	sprintf(time_string, "%u:%u:%u\n", hours, minutes, seconds);
 	httpd_sendstr(session->sock, time_string);
 }
 
-static int schedule_enabled(int zone) //TODO! dummy function
+static int schedule_enabled(int zone) 
 {
-	return 1;
+
+	
+	int time24h, start, end, seconds;
+	RTC_TIME_STRUCT curr_time;
+	_rtc_get_time(&curr_time);
+	seconds = curr_time.seconds;
+	
+	time24h= seconds%86400; //24*60*60=86400
+	start = enable_time_zone_seconds[zone-1];
+	end = disable_time_zone_seconds[zone-1];
+	if (start<end){
+		if ((time24h>=start)  && (time24h<=end))
+			return 1;
+		else
+		{
+			alarm[zone-1] = 0;
+			return 0;
+		}
+	}
+	else if (start>end){
+		if ((time24h>=start)|| (time24h<=end))
+			return 1;
+		else
+		{
+			alarm[zone-1] = 0;
+			return 0;
+		}
+	}
+	else {
+		return 1;
+	}
+	
 }
 /* EOF */
 
