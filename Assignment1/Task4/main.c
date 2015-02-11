@@ -262,12 +262,12 @@ _mqx_int setzone_callback(HTTPD_SESSION_STRUCT *session)
 	temp[1]=inputdata[34];
 	seconds=atoi(temp);*/
 	
-	sscanf(session->request.urldata, "enable=%u&zone=%u&hh=%u&mm=%u&ss=%u", &enable, &zone, &hours, &minutes, &seconds);
+	sscanf(session->request.urldata, "enable=%1u&zone=%1u&hh=%2u&mm=%2u&ss=%2u", &enable, &zone, &hours, &minutes, &seconds);
 
 	if (enable==1) {
-		enable_time_zone_seconds[zone] = seconds + 60*minutes + 60*hours;
+		enable_time_zone_seconds[zone-1] = seconds + 60*minutes + 60*hours;
 	} else {
-		disable_time_zone_seconds[zone] = seconds + 60*minutes + 60*hours;
+		disable_time_zone_seconds[zone-1] = seconds + 60*minutes + 60*hours;
 	}
 	
 	httpd_sendstr(session->sock, session->request.urldata);
