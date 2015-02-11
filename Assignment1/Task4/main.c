@@ -129,6 +129,29 @@ unsigned char http_refresh_text[] =
 "</form>"
 
 "<br>"
+//Start of new code
+"<form action='settime.cgi'>"
+"<table>"
+"<tr>"
+
+"<td> Set time to </td>"
+
+"<td>"
+"<table><tr><td><center>hh:mm:ss</center></td></tr>"
+"<tr><td>"
+"<input type='text' name='hh' pattern='[0-9]{2}' maxlength='2' style='width: 2em;' value='00'>"
+"<input type='text' name='mm' pattern='[0-9]{2}' maxlength='2' style='width: 2em;' value='00'>"
+"<input type='text' name='ss' pattern='[0-9]{2}' maxlength='2' style='width: 2em;' value='00'>"
+"</td></tr>"
+"</table>"
+"</td>"
+		
+"<td><input type='submit' value='Submit'></td>"
+"</tr>"
+"</table>"
+"</form>"
+//End of new code
+"<br>"
 "Set the system time will return the url 'settime.cgi?hh=00&mm=00&ss=00?'.<br>"
 "Setting the enable/disable time for 'setzone.cgi?enable=0&zone=1&hh=00&mm=00&ss=00'.<br>"
 "<br>"
