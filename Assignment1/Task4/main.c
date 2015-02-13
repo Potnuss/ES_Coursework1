@@ -312,7 +312,7 @@ _mqx_int setzone_callback(HTTPD_SESSION_STRUCT *session)
 	return session->request.content_len;	
 }
 
-void toggle_web_room_enabled(room)
+void toggle_web_room_enabled(room) // takes 1-4 
 {
 	if (web_room_enabled[room-1]) { //If room is enabled then disable it and turn the corresponding led off and turn of the alarm.
 		web_room_enabled[room-1]=0;
@@ -320,7 +320,7 @@ void toggle_web_room_enabled(room)
 		alarm[room-1]=0;	
 	} else {
 		web_room_enabled[room-1]=1; //If room is disabled then enable it and if the the alarmsystem is enabled turn the corresponding led on 							and turn of the alarm.
-		if (room_enabled(room-1)) {
+		if (room_enabled(room)) {
 			btnled_set_value(hmi_client, HMI_GET_LED_ID(room), HMI_VALUE_ON);	
 		}
 		alarm[room-1]=0;
@@ -329,14 +329,14 @@ void toggle_web_room_enabled(room)
 
 void button_push_1 (void *ptr)
 {
-	if (room_enabled(0)) {
+	if (room_enabled(1)) {//takes 1-4
 		alarm[0]=1;
 		btnled_toogle(hmi_client, HMI_GET_LED_ID(1));
 	}
 }
 void button_push_2 (void *ptr)
 {
-	if (room_enabled(1)) {
+	if (room_enabled(2)) {
 		alarm[1]=1;
 		btnled_toogle(hmi_client, HMI_GET_LED_ID(2));
 	}
@@ -345,7 +345,7 @@ void button_push_2 (void *ptr)
 
 void button_push_3 (void *ptr)
 {
-	if (room_enabled(2)) {
+	if (room_enabled(3)) {
 		alarm[2]=1;
 		btnled_toogle(hmi_client, HMI_GET_LED_ID(3));
 	}
@@ -353,7 +353,7 @@ void button_push_3 (void *ptr)
 
 void button_push_4 (void *ptr)
 {
-	if (room_enabled(3)) {
+	if (room_enabled(4)) {
 		alarm[3]=1;
 		btnled_toogle(hmi_client, HMI_GET_LED_ID(4));
 	}
@@ -403,7 +403,7 @@ void toggle_enable()
 	}
 }
 
-int room_enabled(int room) //returns whether the room is enabled in practice or not
+int room_enabled(int room) //returns whether the room is enabled in practice or not //takes 1-4
 {
 	if (global_enabled && schedule_enabled(room) && web_room_enabled[room-1]) {
 		return 1;
@@ -526,7 +526,7 @@ static void print_time_to_httpd(HTTPD_SESSION_STRUCT *session, int seconds)
 	httpd_sendstr(session->sock, time_string);
 }
 
-static int schedule_enabled(int zone) 
+static int schedule_enabled(int zone) //takes 1-4
 {
 
 	
